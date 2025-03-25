@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 1001051023}
   m_Layer: 0
   m_Name: FallingCube
-  m_TagString: Untagged
+  m_TagString: Faller
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -255,6 +255,157 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!1 &1344182517
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1344182522}
+  - component: {fileID: 1344182521}
+  - component: {fileID: 1344182520}
+  - component: {fileID: 1344182519}
+  - component: {fileID: 1344182518}
+  - component: {fileID: 1344182523}
+  m_Layer: 0
+  m_Name: MovingCube
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!54 &1344182518
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1344182517}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &1344182519
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1344182517}
+  m_Material: {fileID: 13400000, guid: 3830559e61706814b9907ba540608598, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1344182520
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1344182517}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 742905594546d414b91e18aeac085492, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1344182521
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1344182517}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1344182522
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1344182517}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.46, y: 0.5, z: -2.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1344182523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1344182517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ab9ee26c40dbfc448f60c616c3233d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  magnitude: 6
+  direction: {x: 1, y: 0, z: 0}
 --- !u!1 &1483353863
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,6 +415,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1483353864}
+  - component: {fileID: 1483353865}
   m_Layer: 0
   m_Name: CameraCase
   m_TagString: Untagged
@@ -288,6 +440,27 @@ Transform:
   - {fileID: 1627015599}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1483353865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1483353863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdfd8ec363e549e4cac1758860cc2a47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 5184
+  height: 3888
+  interval: 0.3
+  storeFolder: dev_gen
+  cameraSettings:
+  - camera: {fileID: 1586507467}
+    hasObjIdPass: 0
+  - camera: {fileID: 1627015602}
+    hasObjIdPass: 1
 --- !u!1 &1558390811
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,7 +475,7 @@ GameObject:
   - component: {fileID: 1558390812}
   m_Layer: 0
   m_Name: Plane
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -641,6 +814,7 @@ GameObject:
   - component: {fileID: 1627015602}
   - component: {fileID: 1627015600}
   - component: {fileID: 1627015603}
+  - component: {fileID: 1627015604}
   m_Layer: 0
   m_Name: IDCam
   m_TagString: Untagged
@@ -869,25 +1043,25 @@ MonoBehaviour:
   fadeRadius: 0
   priority: 0
   customPasses:
-  - rid: 8106141263174041600
+  - rid: 8106141264762372162
   injectionPoint: 3
   m_TargetCamera: {fileID: 1627015602}
   useTargetCamera: 1
   references:
     version: 2
     RefIds:
-    - rid: 8106141263174041600
-      type: {class: ObjectIDCustomPass, ns: UnityEngine.Rendering.HighDefinition, asm: Unity.RenderPipelines.HighDefinition.Runtime}
+    - rid: 8106141264762372162
+      type: {class: TagwiseObjectIdCustomPass, ns: , asm: Assembly-CSharp}
       data:
         m_Name: Custom Pass
         enabled: 1
         targetColorBuffer: 0
         targetDepthBuffer: 0
         clearFlags: 1
-        passFoldout: 1
+        passFoldout: 0
         m_Version: 0
-        filterFoldout: 1
-        rendererFoldout: 1
+        filterFoldout: 0
+        rendererFoldout: 0
         renderQueueType: 2
         layerMask:
           serializedVersion: 2
@@ -912,6 +1086,26 @@ MonoBehaviour:
         stencilFailOperation: 0
         stencilDepthFailOperation: 0
         shaderPass: 0
+--- !u!114 &1627015604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1627015598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62464bd18eb54d844b38d7fb55efce94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tagColoring:
+  - tag: Player
+    color: {r: 0.116945416, g: 0.7829017, b: 0.82641506, a: 0}
+  - tag: Ground
+    color: {r: 0.827451, g: 0.5169923, b: 0.11764705, a: 0}
+  - tag: Faller
+    color: {r: 0.827451, g: 0.11764705, b: 0.1255799, a: 0}
+  fallbackColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!1 &1814732282
 GameObject:
   m_ObjectHideFlags: 0
@@ -1210,3 +1404,4 @@ SceneRoots:
   - {fileID: 2029682232}
   - {fileID: 1558390815}
   - {fileID: 1001051022}
+  - {fileID: 1344182522}
