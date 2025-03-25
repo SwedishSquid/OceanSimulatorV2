@@ -51,11 +51,15 @@ public class ExpCapturer : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(interval);
+            var timeScale = Time.timeScale;
+            Time.timeScale = 0;
             yield return new WaitForEndOfFrame();
             foreach (var cameraSettings in cameraSettings)
             {
                 CapturePhoto(cameraSettings, counter);
             }
+            yield return new WaitForEndOfFrame();
+            Time.timeScale = timeScale;
             counter++;
         }
     }
