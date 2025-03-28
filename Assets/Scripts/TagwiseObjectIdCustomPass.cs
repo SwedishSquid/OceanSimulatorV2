@@ -12,6 +12,7 @@ public class TagwiseObjectIdCustomPass : ObjectIDCustomPass
         foreach (Renderer renderer in rendererList)
         {
             MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+            //Debug.Log($"coloring [{renderer.gameObject}]");
             var color = TagColorMapData.GetColor(renderer.gameObject.tag);
             propertyBlock.SetColor("ObjectColor", color);
             renderer.SetPropertyBlock(propertyBlock);
