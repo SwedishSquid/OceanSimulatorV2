@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Unity.VisualScripting;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class Main : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class Main : MonoBehaviour
     void Start()
     {
         // set up scene
-        //StartCoroutine(MainLoop());
+        StartCoroutine(MainLoop());
     }
 
     private IEnumerator MainLoop()
@@ -72,41 +73,51 @@ public class Main : MonoBehaviour
         var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
             + shipDirection * (objectToBoardDistance + reserveDistance);
         // todo: sample object and its rotation
-        //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
+        var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
 
         yield return new WaitForSeconds(1f);    // warmup, maybe reduncant
 
         var nSteps = (int)Math.Ceiling((objectToBoardDistance + reserveDistance) * 2 / shipSpeed);
         for (int i = 0; i < nSteps; i++)
         {
-            //yield return new WaitForSeconds(intervalBetweenCapture);
-            //yield return new WaitForEndOfFrame();
-            //var timeScale = Time.timeScale;
-            //Time.timeScale = 0;
-            //yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
-            ////floatingWizard.AdjustToSurface(obj);
-            ////Debug.Log("surface adjustment complete");
-            //yield return new WaitForSecondsRealtime(0.3f);
-            ////yield return new WaitForEndOfFrame();
-            ////Debug.Log("before capturing");
-            ////var results = capturer.CaptureAll();
-            ////Debug.Log("capturing complete");
-            ////SavePhotos(results, i);
-            ////Debug.Log("results saved");
-            ////yield return new WaitForEndOfFrame();
-            ////yield return new WaitForEndOfFrame();   // just to be sure
-            //cameraCase.transform.position += shipDirection * shipSpeed;
-            //Time.timeScale = timeScale;
+            yield return new WaitForSeconds(intervalBetweenCapture);
+            yield return new WaitForEndOfFrame();
+            var timeScale = Time.timeScale;
+            Time.timeScale = 0;
+            yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
+            floatingWizard.AdjustToSurface(obj);
+            Debug.Log("surface adjustment complete");
+            yield return new WaitForSecondsRealtime(0.3f);
+            yield return new WaitForEndOfFrame();
+            Debug.Log("before capturing");
+
+            CaptureAllCameras(i);
+            
+            Debug.Log("results saved");
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();   // just to be sure
+            cameraCase.transform.position += shipDirection * shipSpeed;
+            Time.timeScale = timeScale;
         }
     }
 
-    private void SavePhotos(List<TotalCapturer.PhotoData> photos, int counter)
+    private void CaptureAllCameras(int counter)
     {
-        foreach (var photo in photos)
+        foreach (var cs in capturer.cameraSettings)
         {
-            string fileName = $"{photo.cs.camera.name}_{counter}.png";
+            string fileName = $"{cs.camera.name}_{counter}.png";
             string filePath = Path.Combine(storeFolder, fileName);
-            File.WriteAllBytes(filePath, photo.contentPNG);
+            capturer.CaptureAndSave(cs, filePath);
         }
     }
+
+    //private void SavePhotos(List<TotalCapturer.PhotoData> photos, int counter)
+    //{
+    //    foreach (var photo in photos)
+    //    {
+    //        string fileName = $"{photo.cs.camera.name}_{counter}.png";
+    //        string filePath = Path.Combine(storeFolder, fileName);
+    //        File.WriteAllBytes(filePath, photo.contentPNG);
+    //    }
+    //}
 }
