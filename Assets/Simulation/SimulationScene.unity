@@ -143,7 +143,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 69617565}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.14858618, y: -0, z: -0, w: 0.98889947}
+  m_LocalRotation: {x: 0.2164396, y: 0, z: 0, w: 0.97629607}
   m_LocalPosition: {x: 0, y: 210, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -151,7 +151,7 @@ Transform:
   - {fileID: 679036601}
   - {fileID: 2003209167}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 17.09, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 25, y: 0, z: 0}
 --- !u!1 &113722369
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,8 +231,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tagColoring:
-  - tag: Water
-    color: {r: 0, g: 0, b: 1, a: 0}
   - tag: Object
     color: {r: 1, g: 0, b: 0, a: 0}
   - tag: Untagged
@@ -265,7 +263,7 @@ GameObject:
   - component: {fileID: 541289580}
   m_Layer: 4
   m_Name: Ocean
-  m_TagString: Water
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -412,7 +410,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   repetitionSize: 2000
   largeOrientationValue: 0
-  largeWindSpeed: 14
+  largeWindSpeed: 28
   largeChaos: 0.85
   largeBand0Multiplier: 1
   largeBand0FadeMode: 1
@@ -425,8 +423,8 @@ MonoBehaviour:
   ripples: 1
   ripplesMotionMode: 0
   ripplesOrientationValue: 0
-  ripplesWindSpeed: 8
-  ripplesChaos: 0.8
+  ripplesWindSpeed: 9.22
+  ripplesChaos: 1
   ripplesFadeMode: 1
   ripplesFadeStart: 50
   ripplesFadeDistance: 200
@@ -779,7 +777,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 76
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -863,7 +861,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -907,7 +905,7 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
   m_ShadowRadius: 0
-  m_ShadowAngle: 0
+  m_ShadowAngle: 3
   m_LightUnit: 2
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
@@ -919,13 +917,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 984521098}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.9455186, z: -0.32556805, w: 0}
+  m_LocalRotation: {x: 0, y: 0.43051124, z: -0.9025852, w: 0}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 38, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 129, y: 180, z: 0}
 --- !u!114 &984521101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -972,7 +970,7 @@ MonoBehaviour:
   m_AreaLightShadowCone: 120
   m_UseScreenSpaceShadows: 0
   m_InteractsWithSky: 1
-  m_AngularDiameter: 0.5
+  m_AngularDiameter: 3
   diameterMultiplerMode: 0
   diameterMultiplier: 1
   diameterOverride: 0.5
@@ -1030,7 +1028,7 @@ MonoBehaviour:
   m_UseContactShadow:
     m_Override: 0
     m_UseOverride: 1
-    m_Level: 0
+    m_Level: 2
   m_RayTracedContactShadow: 0
   m_ShadowTint: {r: 0, g: 0, b: 0, a: 1}
   m_PenumbraTint: 0
@@ -1068,6 +1066,71 @@ MonoBehaviour:
   m_ObsoleteUseShadowQualitySettings: 0
   m_ObsoleteCustomShadowResolution: 512
   m_ObsoleteContactShadows: 0
+--- !u!1 &1529876666
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1529876667}
+  - component: {fileID: 1529876668}
+  - component: {fileID: 1529876669}
+  m_Layer: 0
+  m_Name: Main
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1529876667
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1529876666}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 200, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1529876668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1529876666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc12fc743e0e5a54596b09b47933d46b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetSurface: {fileID: 541289580}
+  cameraCase: {fileID: 69617565}
+  capturer: {fileID: 1529876669}
+--- !u!114 &1529876669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1529876666}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9619a7e7482ede948adf3e07982185b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 2592
+  height: 3888
+  cameraSettings:
+  - camera: {fileID: 679036603}
+  - camera: {fileID: 2003209170}
 --- !u!1 &1773978052
 GameObject:
   m_ObjectHideFlags: 0
@@ -1086,7 +1149,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &1773978053
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1382,7 +1445,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 76
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -1721,13 +1784,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9619a7e7482ede948adf3e07982185b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  width: 3888
+  height: 2916
   cameraSettings:
   - camera: {fileID: 679036603}
-    width: 5184
-    height: 3888
   - camera: {fileID: 2003209170}
-    width: 5184
-    height: 3888
 --- !u!114 &2143096204
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1770,3 +1831,4 @@ SceneRoots:
   - {fileID: 186101882}
   - {fileID: 1773978056}
   - {fileID: 2143096205}
+  - {fileID: 1529876667}

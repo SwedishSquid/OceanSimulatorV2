@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using static UnityEditor.Progress;
 using System.IO;
 using System.Linq;
+using UnityEngine.Rendering;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class TotalCapturer : MonoBehaviour
 {
@@ -12,11 +14,26 @@ public class TotalCapturer : MonoBehaviour
     public class CameraSettings
     {
         public Camera camera;
-        public int width = 5184;
-        public int height = 3888;
     }
 
+    [System.Serializable]
+    public class Resolution
+    {
+        public int width;
+        public int height;
+    }
+
+    public bool UseMainResolution = true;
+    public Resolution MainResolution = new Resolution() { width=3888, height=2916 };
+    public Resolution DevResolution;
+
     public CameraSettings[] cameraSettings;
+
+    private RenderTexture renderTexture;
+    private Texture2D texture;
+
+    private int width;
+    private int height;
 
     public void AssignObjectIDs()
     {
@@ -35,16 +52,37 @@ public class TotalCapturer : MonoBehaviour
         public CameraSettings cs;
     }
 
+    public void Start()
+    {
+        if (UseMainResolution)
+        {
+            width = MainResolution.width;
+            height = MainResolution.height;
+        }
+        else
+        {
+            width = DevResolution.width;
+            height = DevResolution.height;
+        }
+        renderTexture = new RenderTexture(width, height, 24);
+        texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+    }
+
     public List<PhotoData> CaptureAll()
     {
         return cameraSettings.Select(cs => CaptureOne(cs))
             .ToList();
+        //throw new System.Exception("not applicable");
     }
 
+    /// <summary>
+    /// call this when game is paused
+    /// </summary>
+    /// <param name="cs"></param>
+    /// <returns></returns>
     public PhotoData CaptureOne(CameraSettings cs)
     {
         var camera = cs.camera;
-        RenderTexture renderTexture = new RenderTexture(cs.width, cs.height, 24);
         var prevTarget = camera.targetTexture;
         camera.targetTexture = renderTexture;
         camera.Render();
@@ -52,15 +90,29 @@ public class TotalCapturer : MonoBehaviour
 
         var old_rt = RenderTexture.active;
         RenderTexture.active = renderTexture;
-        Texture2D texture = new Texture2D(cs.width, cs.height, TextureFormat.RGB24, false);
-        texture.ReadPixels(new Rect(0, 0, cs.width, cs.height), 0, 0);
+        texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         texture.Apply();
         RenderTexture.active = old_rt;
 
-        byte[] bytes = texture.EncodeToPNG();
+        // these two might not be needed, but they as well might help a bit
+        renderTexture.Release();
+        System.GC.Collect();
 
+        byte[] bytes = texture.EncodeToPNG();
+        Debug.Log(bytes.Length);
+
+        return new PhotoData { contentPNG = bytes, cs = cs };
+    }
+
+    public void CaptureAndSave(CameraSettings cs, string filepath)
+    {
+        var photo = CaptureOne(cs);
+        File.WriteAllBytes(filepath, photo.contentPNG);
+    }
+
+    private void OnDestroy()
+    {
         Destroy(renderTexture);
         Destroy(texture);
-        return new PhotoData { contentPNG = bytes, cs = cs };
     }
 }
