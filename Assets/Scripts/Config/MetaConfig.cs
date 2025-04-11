@@ -1,16 +1,132 @@
+using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UIElements;
+using static UnityEngine.Rendering.STP;
 
-public class MetaConfig : MonoBehaviour
+public class MetaConfig
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public EpisodeConfig Sample()
     {
+        var config = new EpisodeConfig();
+
+        ConfigureShip(config);
+        ConfigureWater(config);
+        ConfigureLight(config);
+        ConfigureSky(config);
+        ConfigureClouds(config);
+        ConfigureObject(config);
         
+        return config;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void ConfigureObject(EpisodeConfig config)
     {
-        
+        var testMultiplier = 10f;
+        var minDist = 7f;
+        var maxDist = 75f;
+        var farSize = 0.5f;
+        var closeSize = 0.05f;
+        config.ObjectToBoatDistance = Random.Range(minDist, maxDist);
+        var t = (config.ObjectToBoatDistance - minDist) / (maxDist - minDist);
+        var expectedLinearSize =  Mathf.LerpUnclamped(closeSize, farSize, t);
+        var sizeMultiplier = Random.Range(0.3f, 1.5f);
+        config.ObjectScale = testMultiplier * sizeMultiplier * expectedLinearSize * Vector3.one;
+    }
+
+    private void ConfigureClouds(EpisodeConfig config)
+    {
+        config.CloudsType = SampleCloudsType();
+        config.CloudsShapeOffset = new Vector3(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+    }
+
+    private void ConfigureLight(EpisodeConfig config)
+    {
+        config.LightRotation = new Vector3(Random.Range(-173f, 173f), Random.Range(-180f, 180f), 0);
+        config.LightAngularDiameter = Random.Range(0.3f, 4.5f);
+    }
+
+    private void ConfigureSky(EpisodeConfig config)
+    {
+        config.SkyGroundTint = config.WaterColor;
+    }
+
+    private void ConfigureWater(EpisodeConfig config)
+    {
+        config.WaterRotation = Random.Range(-180f, 180f);
+        config.WaterDistantWindSpeed = Random.Range(0f, 42f);
+        config.WaterChaos = Random.Range(0.1f, 1f);
+        config.WaterFirstBandAmplitude = 0.5f; // for the swells not to be too big
+        config.WaterSecondBandAmplitude = Mathf.Min(Random.Range(0.3f, 1.2f), 1f);
+        config.WaterRipplesWindSpeed = Random.Range(0f, 15f);
+        config.WaterRipplesChaos = Random.Range(0.1f, 1f);
+        config.WaterColor = SampleWaterColor();
+        config.WaterAbsorptionDistance = Random.Range(1f, 3f);
+
+        // foam
+
+        config.FoamPersistenceMultipier = Random.Range(0.1f, 1f);
+        config.FoamColor = Color.white;
+        config.FoamSmoothness = Random.Range(0f, 1f);
+        if (Random.Range(0f, 1f) < 0.1f)
+        {
+            config.FoamAmount = 0f;
+        }
+        else
+        {
+            config.FoamAmount = Random.Range(0f, 0.9f);
+        }
+    }
+
+    private void ConfigureShip(EpisodeConfig config)
+    {
+        var direction = Random.onUnitSphere;
+        direction.y = 0;
+        if (direction == Vector3.zero)
+        {
+            Debug.LogWarning("ship direction of 0 magnitude, changed to default");
+            direction = Vector3.forward;
+        }
+        direction.Normalize();
+        config.ShipDirection = direction;
+
+        config.ShipSpeed = Random.Range(2.5f, 3.5f);    //todo: find real values
+
+        config.RollBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 2f), 
+            Random.Range(9f, 20f), 
+            Random.Range(0f, 1f)).bands;
+        config.pitchBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 2f), 
+            Random.Range(10f, 17f),
+            Random.Range(0f, 1f)).bands;
+        config.heaveBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 0.25f), 
+            Random.Range(7f, 16f),
+            Random.Range(0f, 1f)).bands;
+    }
+
+    private Color SampleWaterColor()
+    {
+        return Random.ColorHSV(170f / 256f, 230f / 256f, 0.3f, 1f, 0.5f, 0.85f);
+    }
+
+    private string SampleCloudsType()
+    {
+        var randomValue = Random.Range(0f, 1f);
+        if (randomValue < 0.3f)
+        {
+            return "Disabled";
+        }
+        if (randomValue < 0.6f)
+        {
+            return "Sparse";
+        }
+        if (randomValue < 0.9f)
+        {
+            return "Cloudy";
+        }
+        if (randomValue < 0.96f)
+        {
+            return "Stormy";
+        }
+        return "Overcast";
     }
 }

@@ -65,6 +65,7 @@ public class Main : MonoBehaviour
             pitchOscillator: Oscillator.MakeEmpty().AddBand(2, 15, 0),
             heaveOscillator: Oscillator.MakeEmpty().AddBand(0.25f, 9, 0)
             );
+        AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
 
         var shipVelocityNomal = shipMover.gameObject.transform.forward;
         shipVelocityNomal.y = 0;

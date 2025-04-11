@@ -696,9 +696,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   repetitionSize: 2000
   largeOrientationValue: 0
-  largeWindSpeed: 28
+  largeWindSpeed: 34
   largeChaos: 0.85
-  largeBand0Multiplier: 1
+  largeBand0Multiplier: 0.541
   largeBand0FadeMode: 1
   largeBand0FadeStart: 1500
   largeBand0FadeDistance: 3000
