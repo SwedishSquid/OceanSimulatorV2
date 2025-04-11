@@ -9,13 +9,12 @@ using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCou
 
 public class Main : MonoBehaviour
 {
-    //private string savePath = "";
-
     public WaterSurface targetSurface;
 
     public GameObject cameraCase;
-    private Vector3 defaultCameraCasePosition;
-    private Quaternion defaultCameraCaseRotation;
+    public ShipMover shipMover;
+
+    public GameObject horizonDetectionPlane;
 
     public TotalCapturer capturer;
 
@@ -28,14 +27,12 @@ public class Main : MonoBehaviour
 
     private void Awake()
     {
-        if (cameraCase == null || targetSurface == null || capturer == null)
+        if (shipMover == null || cameraCase == null || targetSurface == null || capturer == null)
         {
             throw new ArgumentException("not all dependencies set");
         }
         floatingWizard = new FloatingWizard(targetSurface);
         objectPrefabs = Resources.LoadAll<GameObject>("ObjectPrefabs");
-        defaultCameraCasePosition = cameraCase.transform.position;
-        defaultCameraCaseRotation = cameraCase.transform.rotation;
     }
 
     void Start()
@@ -58,26 +55,29 @@ public class Main : MonoBehaviour
     
     private IEnumerator StartEncounter()
     {
-        var shipDirection = new Vector3(-1, 0, 0);
+        var shipDirection = new Vector3(-1, 0, -1).normalized;
         var shipSpeed = 3f;
         var objectToBoardDistance = 10f;
-        var reserveDistance = 5f;
-        cameraCase.transform.position = defaultCameraCasePosition;
-        cameraCase.transform.rotation = defaultCameraCaseRotation;
-        // todo: handle camera rotation
+        var hopDistance = shipSpeed * intervalBetweenCapture;
+        var objectHorizontalShift = objectToBoardDistance + 2 * hopDistance;    // todo: add random value to diversify object position
+        shipMover.SetParamsAndReset(shipDirection, shipSpeed,
+            rollOscillator: Oscillator.MakeEmpty().AddBand(2, 11, 0.25f),
+            pitchOscillator: Oscillator.MakeEmpty().AddBand(2, 15, 0),
+            heaveOscillator: Oscillator.MakeEmpty().AddBand(0.25f, 9, 0)
+            );
 
-        var shipVelocityNomal = cameraCase.transform.forward;
+        var shipVelocityNomal = shipMover.gameObject.transform.forward;
         shipVelocityNomal.y = 0;
         shipVelocityNomal.Normalize();
 
         var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
-            + shipDirection * (objectToBoardDistance + reserveDistance);
+            + shipDirection * (objectHorizontalShift);
         // todo: sample object and its rotation
         var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
 
         yield return new WaitForSeconds(1f);    // warmup, maybe reduncant
 
-        var nSteps = (int)Math.Ceiling((objectToBoardDistance + reserveDistance) * 2 / shipSpeed);
+        var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipSpeed * intervalBetweenCapture)) + 2;
         for (int i = 0; i < nSteps; i++)
         {
             yield return new WaitForSeconds(intervalBetweenCapture);
@@ -96,8 +96,10 @@ public class Main : MonoBehaviour
             Debug.Log("results saved");
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();   // just to be sure
-            cameraCase.transform.position += shipDirection * shipSpeed;
+            shipMover.AdjustPosition(i * intervalBetweenCapture);
+            AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
             Time.timeScale = timeScale;
+            Debug.Log($"step {i} / {nSteps}");
         }
     }
 
@@ -111,13 +113,14 @@ public class Main : MonoBehaviour
         }
     }
 
-    //private void SavePhotos(List<TotalCapturer.PhotoData> photos, int counter)
-    //{
-    //    foreach (var photo in photos)
-    //    {
-    //        string fileName = $"{photo.cs.camera.name}_{counter}.png";
-    //        string filePath = Path.Combine(storeFolder, fileName);
-    //        File.WriteAllBytes(filePath, photo.contentPNG);
-    //    }
-    //}
+    private void AdjustHorizonPlanePosition(Vector3 cameraPosition)
+    {
+        if (horizonDetectionPlane == null)
+        {
+            Debug.LogWarning("horizon detection plane not set");
+            return;
+        }
+        horizonDetectionPlane.transform.position = new Vector3(cameraPosition.x, 
+            horizonDetectionPlane.transform.position.y, cameraPosition.z);
+    }
 }
