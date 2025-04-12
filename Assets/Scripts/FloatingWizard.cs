@@ -40,7 +40,7 @@ public class FloatingWizard
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
-            Debug.Log(searchResult.projectedPositionWS);
+            //Debug.Log(searchResult.projectedPositionWS);
             obj.transform.position = searchResult.projectedPositionWS;
         }
         else Debug.LogError("Can't Find Projected Position");

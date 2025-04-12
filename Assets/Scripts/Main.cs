@@ -57,7 +57,7 @@ public class Main : MonoBehaviour
     private IEnumerator MainLoop()
     {
         var iteration = 0;
-        var nEpisodes = 10;
+        var nEpisodes = 5;
         while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");
@@ -100,6 +100,8 @@ public class Main : MonoBehaviour
         // todo: sample object
         var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
         obj.transform.localScale = episodeConfig.ObjectScale;
+
+        capturer.AssignObjectIDs();
 
         yield return new WaitForSeconds(1f);    // warmup, maybe reduncant
 

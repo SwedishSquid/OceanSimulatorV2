@@ -56,6 +56,8 @@ public class MetaConfig
 
     private void ConfigureWater(EpisodeConfig config)
     {
+        // todo: sample ripples wind with respect to large wind; the same goes to foam
+
         config.WaterRotation = Random.Range(-180f, 180f);
         config.WaterDistantWindSpeed = Random.Range(0f, 42f);
         config.WaterChaos = Random.Range(0.1f, 1f);
