@@ -27,6 +27,12 @@ public class EpisodeConfig
     public float WaterChaos;
 
     /// <summary>
+    /// controls waves direction somehow;
+    /// angles
+    /// </summary>
+    public float WaterCurrentOrientation;
+
+    /// <summary>
     /// [0 - 1]
     /// </summary>
     public float WaterFirstBandAmplitude;
@@ -103,7 +109,6 @@ public class EpisodeConfig
 
     //// STRANGE
     //public int WaterRepetitionSize = 2000;
-    //public float WaterCurrentOrientation = 0;
     //public float WaterCurrentSpeed = 0;
     ///// <summary>
     ///// [0 - 1]

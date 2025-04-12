@@ -24,7 +24,7 @@ public class MetaConfig
 
     private void ConfigureObject(EpisodeConfig config)
     {
-        var testMultiplier = 10f;
+        var testMultiplier = 1f; //10f;
         var minDist = 7f;
         var maxDist = 75f;
         var farSize = 0.5f;
@@ -59,6 +59,7 @@ public class MetaConfig
         config.WaterRotation = Random.Range(-180f, 180f);
         config.WaterDistantWindSpeed = Random.Range(0f, 42f);
         config.WaterChaos = Random.Range(0.1f, 1f);
+        config.WaterCurrentOrientation = Random.Range(-180f, 180f);
         config.WaterFirstBandAmplitude = 0.5f; // for the swells not to be too big
         config.WaterSecondBandAmplitude = Mathf.Min(Random.Range(0.3f, 1.2f), 1f);
         config.WaterRipplesWindSpeed = Random.Range(0f, 15f);

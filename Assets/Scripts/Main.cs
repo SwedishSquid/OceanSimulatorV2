@@ -160,6 +160,7 @@ public class Main : MonoBehaviour
         targetSurface.transform.rotation = Quaternion.Euler(new Vector3(0, config.WaterRotation, 0));
         targetSurface.largeWindSpeed = config.WaterDistantWindSpeed;
         targetSurface.largeChaos = config.WaterChaos;
+        targetSurface.largeOrientationValue = config.WaterCurrentOrientation;
         targetSurface.largeBand0Multiplier = config.WaterFirstBandAmplitude;
         targetSurface.largeBand1Multiplier = config.WaterSecondBandAmplitude;
         targetSurface.ripplesWindSpeed = config.WaterRipplesWindSpeed;
