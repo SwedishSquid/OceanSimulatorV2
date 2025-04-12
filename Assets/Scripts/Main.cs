@@ -7,6 +7,8 @@ using System.IO;
 using Unity.VisualScripting;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 using UnityEngine.Rendering;
+using System.Text.Json;
+using Palmmedia.ReportGenerator.Core.Common;
 
 public class Main : MonoBehaviour
 {
@@ -55,19 +57,25 @@ public class Main : MonoBehaviour
     private IEnumerator MainLoop()
     {
         var iteration = 0;
-        while (true)
+        var nEpisodes = 10;
+        while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");
-            yield return StartEpisode();
-            break; // todo: make different save directories
+            yield return StartEpisode(iteration);
+            iteration++;
+            //break; // todo: make different save directories
         }
         Debug.Log("end of simulation");
     }
     
-    private IEnumerator StartEpisode()
+    private IEnumerator StartEpisode(int episodeIndex)
     {
+        var episodeDirName = $"episode_{episodeIndex}";
         var episodeConfig = metaConfig.Sample();
         ConfigureEnvironment(episodeConfig);
+        Directory.CreateDirectory(Path.Combine(storeFolder, episodeDirName));
+        var configJson = JsonUtility.ToJson(episodeConfig, prettyPrint: true);
+        File.WriteAllText(Path.Combine(storeFolder, episodeDirName, "episode_config.json"), configJson);
 
         var shipDirection = episodeConfig.ShipDirection; // new Vector3(-1, 0, -1).normalized;
         var shipSpeed = episodeConfig.ShipSpeed; // 3f;
@@ -110,7 +118,7 @@ public class Main : MonoBehaviour
             yield return new WaitForEndOfFrame();
             Debug.Log("before capturing");
 
-            CaptureAllCameras(i);
+            CaptureAllCameras(i, episodeDirName);
             
             Debug.Log("results saved");
             yield return new WaitForEndOfFrame();
@@ -123,12 +131,14 @@ public class Main : MonoBehaviour
         Destroy(obj);   // who needs this junk
     }
 
-    private void CaptureAllCameras(int counter)
+    private void CaptureAllCameras(int frameCounter, string episodeDirName)
     {
         foreach (var cs in capturer.cameraSettings)
         {
-            string fileName = $"{cs.camera.name}_{counter}.png";
-            string filePath = Path.Combine(storeFolder, fileName);
+            string fileName = $"{frameCounter}.png";
+            var cameraFolderName = cs.camera.name;
+            string filePath = Path.Combine(storeFolder, episodeDirName, cameraFolderName, fileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             capturer.CaptureAndSave(cs, filePath);
         }
     }

@@ -77,3 +77,4 @@ crashlytics-build.properties
 
 # generated data
 /dev_gen
+/gen_results

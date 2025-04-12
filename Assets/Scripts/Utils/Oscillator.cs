@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 
 public class Oscillator
 {
+    [Serializable]
     public struct Band
     {
         public float amplitude;

@@ -267,7 +267,7 @@ GameObject:
   - component: {fileID: 334983660}
   - component: {fileID: 334983659}
   m_Layer: 0
-  m_Name: HorizonCamera
+  m_Name: HorizonGopro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -679,7 +679,7 @@ MonoBehaviour:
   repetitionSize: 2000
   largeOrientationValue: 0
   largeWindSpeed: 40
-  largeChaos: 0.04
+  largeChaos: 0.8
   largeBand0Multiplier: 0.48
   largeBand0FadeMode: 1
   largeBand0FadeStart: 1500
