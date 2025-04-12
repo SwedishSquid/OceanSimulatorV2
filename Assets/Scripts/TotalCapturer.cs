@@ -47,7 +47,6 @@ public class TotalCapturer : MonoBehaviour
                     if (pass is ObjectIDCustomPass objIdPass)
                     {
                         objIdPass.AssignObjectIDs();
-                        //Debug.Log("assigned some object ids");
                     }
                 }
             }
@@ -80,7 +79,6 @@ public class TotalCapturer : MonoBehaviour
     {
         return cameraSettings.Select(cs => CaptureOne(cs))
             .ToList();
-        //throw new System.Exception("not applicable");
     }
 
     /// <summary>
@@ -107,7 +105,6 @@ public class TotalCapturer : MonoBehaviour
         System.GC.Collect();
 
         byte[] bytes = texture.EncodeToPNG();
-        //Debug.Log(bytes.Length);
 
         return new PhotoData { contentPNG = bytes, cs = cs };
     }

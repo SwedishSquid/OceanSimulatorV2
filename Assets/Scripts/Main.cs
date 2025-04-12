@@ -4,11 +4,7 @@ using UnityEngine.Rendering.HighDefinition;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Unity.VisualScripting;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 using UnityEngine.Rendering;
-using System.Text.Json;
-using Palmmedia.ReportGenerator.Core.Common;
 
 public class Main : MonoBehaviour
 {
@@ -50,7 +46,6 @@ public class Main : MonoBehaviour
 
     void Start()
     {
-        // set up scene
         StartCoroutine(MainLoop());
     }
 
@@ -63,7 +58,6 @@ public class Main : MonoBehaviour
             Debug.Log($"starting episode {iteration}");
             yield return StartEpisode(iteration);
             iteration++;
-            //break; // todo: make different save directories
         }
         Debug.Log("end of simulation");
     }
@@ -77,13 +71,13 @@ public class Main : MonoBehaviour
         var configJson = JsonUtility.ToJson(episodeConfig, prettyPrint: true);
         File.WriteAllText(Path.Combine(storeFolder, episodeDirName, "episode_config.json"), configJson);
 
-        var shipDirection = episodeConfig.ShipDirection; // new Vector3(-1, 0, -1).normalized;
-        var shipSpeed = episodeConfig.ShipSpeed; // 3f;
-        var objectToBoardDistance = episodeConfig.ObjectToBoatDistance; // 10f;
+        var shipDirection = episodeConfig.ShipDirection;
+        var shipSpeed = episodeConfig.ShipSpeed;
+        var objectToBoardDistance = episodeConfig.ObjectToBoatDistance;
         var hopDistance = shipSpeed * intervalBetweenCapture;
 
         var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance 
-            + episodeConfig.ObjectDisplacement * hopDistance;    // todo: add random value to diversify object position
+            + episodeConfig.ObjectDisplacement * hopDistance;
         shipMover.SetParamsAndReset(shipDirection, shipSpeed,
             rollOscillator: new Oscillator(episodeConfig.ShipRollBands),
             pitchOscillator: new Oscillator(episodeConfig.ShipPitchBands),
