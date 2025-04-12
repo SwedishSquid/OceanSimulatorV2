@@ -8,9 +8,9 @@ public class EpisodeConfig
     public Vector3 ShipDirection;
     public float ShipSpeed;
 
-    public List<Oscillator.Band> RollBands;
-    public List<Oscillator.Band> pitchBands;
-    public List<Oscillator.Band> heaveBands;
+    public List<Oscillator.Band> ShipRollBands;
+    public List<Oscillator.Band> ShipPitchBands;
+    public List<Oscillator.Band> ShipHeaveBands;
 
     // WATER SURFACE
     /// <summary>
@@ -75,7 +75,7 @@ public class EpisodeConfig
     /// <summary>
     /// affects sharpness of shadows + shape of flare
     /// </summary>
-    public float LightAngularDiameter = 3f;
+    public float LightAngularDiameter;
 
     // SKY
     /// <summary>
@@ -95,23 +95,27 @@ public class EpisodeConfig
     // OBJECT
     public float ObjectToBoatDistance;  // length of perpendicular to the motion vector
     public Vector3 ObjectScale;
-
-
-    // STRANGE
-    public int WaterRepetitionSize = 2000;
-    public float WaterCurrentOrientation = 0;
-    public float WaterCurrentSpeed = 0;
     /// <summary>
     /// [0 - 1]
     /// </summary>
-    public float FoamCurrentInfluence = 0.6f;
+    public float ObjectDisplacement;
 
-    /// <summary>
-    /// affects performance
-    /// </summary>
-    public float FoamTextureTiling = 0.15f;
-    /// <summary>
-    /// [0 - 1]
-    /// </summary>
-    public float CloudsTemporalAccumulation = 0f;
+
+    //// STRANGE
+    //public int WaterRepetitionSize = 2000;
+    //public float WaterCurrentOrientation = 0;
+    //public float WaterCurrentSpeed = 0;
+    ///// <summary>
+    ///// [0 - 1]
+    ///// </summary>
+    //public float FoamCurrentInfluence = 0.6f;
+
+    ///// <summary>
+    ///// affects performance
+    ///// </summary>
+    //public float FoamTextureTiling = 0.15f;
+    ///// <summary>
+    ///// [0 - 1]
+    ///// </summary>
+    //public float CloudsTemporalAccumulation = 0f;
 }

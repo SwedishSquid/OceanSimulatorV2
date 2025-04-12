@@ -17,6 +17,8 @@ public class MetaConfig
         ConfigureClouds(config);
         ConfigureObject(config);
         
+        // todo: sample object path
+
         return config;
     }
 
@@ -32,6 +34,7 @@ public class MetaConfig
         var expectedLinearSize =  Mathf.LerpUnclamped(closeSize, farSize, t);
         var sizeMultiplier = Random.Range(0.3f, 1.5f);
         config.ObjectScale = testMultiplier * sizeMultiplier * expectedLinearSize * Vector3.one;
+        config.ObjectDisplacement = Random.Range(0f, 1f);
     }
 
     private void ConfigureClouds(EpisodeConfig config)
@@ -42,7 +45,7 @@ public class MetaConfig
 
     private void ConfigureLight(EpisodeConfig config)
     {
-        config.LightRotation = new Vector3(Random.Range(-173f, 173f), Random.Range(-180f, 180f), 0);
+        config.LightRotation = new Vector3(Random.Range(7f, 173f), Random.Range(-180f, 180f), 0);
         config.LightAngularDiameter = Random.Range(0.3f, 4.5f);
     }
 
@@ -92,20 +95,23 @@ public class MetaConfig
 
         config.ShipSpeed = Random.Range(2.5f, 3.5f);    //todo: find real values
 
-        config.RollBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 2f), 
+        var maxRotationAmplitude = 0.5f;
+        config.ShipRollBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, maxRotationAmplitude), 
             Random.Range(9f, 20f), 
-            Random.Range(0f, 1f)).bands;
-        config.pitchBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 2f), 
+            Random.Range(0f, 1f), 
+            Random.Range(-1f, 1f)).bands;
+        config.ShipPitchBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, maxRotationAmplitude), 
             Random.Range(10f, 17f),
-            Random.Range(0f, 1f)).bands;
-        config.heaveBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 0.25f), 
+            Random.Range(0f, 1f), Random.Range(-1f, 1f)).bands;
+        config.ShipHeaveBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 0.1f), 
             Random.Range(7f, 16f),
-            Random.Range(0f, 1f)).bands;
+            Random.Range(0f, 1f), 
+            Random.Range(-0.2f, 0.2f)).bands;
     }
 
     private Color SampleWaterColor()
     {
-        return Random.ColorHSV(170f / 256f, 230f / 256f, 0.3f, 1f, 0.5f, 0.85f);
+        return Random.ColorHSV(170f / 360f, 230f / 360f, 0.5f, 1f, 0.5f, 0.85f);
     }
 
     private string SampleCloudsType()

@@ -18,6 +18,10 @@ public class Oscillator
         /// from 0 to 1
         /// </summary>
         public float phase;
+        /// <summary>
+        /// base value, to wich sinusoid is added
+        /// </summary>
+        public float bias;
     }
 
     public List<Band> bands;
@@ -33,7 +37,7 @@ public class Oscillator
         var pi2 = Mathf.PI * 2;
         foreach (var band in bands)
         {
-            value += Mathf.Sin(pi2 * (time / band.period + band.phase)) * band.amplitude;
+            value += Mathf.Sin(pi2 * (time / band.period + band.phase)) * band.amplitude + band.bias;
         }
         return value;
     }
@@ -43,9 +47,9 @@ public class Oscillator
         return new Oscillator(new List<Band>());
     }
 
-    public Oscillator AddBand(float amplitude, float period, float phase)
+    public Oscillator AddBand(float amplitude, float period, float phase, float bias = 0f)
     {
-        bands.Add(new Band() { amplitude=amplitude,  period=period, phase=phase });
+        bands.Add(new Band() { amplitude=amplitude,  period=period, phase=phase, bias = bias });
         return this;
     }
 }

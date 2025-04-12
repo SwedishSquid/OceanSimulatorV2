@@ -6,10 +6,15 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.VisualScripting;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
+using UnityEngine.Rendering;
 
 public class Main : MonoBehaviour
 {
     public WaterSurface targetSurface;
+
+    public Volume globalVolume;
+
+    public Light sunLight;
 
     public GameObject cameraCase;
     public ShipMover shipMover;
@@ -25,14 +30,20 @@ public class Main : MonoBehaviour
     private float intervalBetweenCapture = 3f;     //seconds
     private string storeFolder = "dev_gen";
 
+    private int paddingShots = 2;
+
+    private MetaConfig metaConfig;
+
     private void Awake()
     {
-        if (shipMover == null || cameraCase == null || targetSurface == null || capturer == null)
+        if (shipMover == null || cameraCase == null || targetSurface == null || capturer == null || globalVolume == null)
         {
             throw new ArgumentException("not all dependencies set");
         }
         floatingWizard = new FloatingWizard(targetSurface);
         objectPrefabs = Resources.LoadAll<GameObject>("ObjectPrefabs");
+
+        metaConfig = new MetaConfig();
     }
 
     void Start()
@@ -46,24 +57,29 @@ public class Main : MonoBehaviour
         var iteration = 0;
         while (true)
         {
-            Debug.Log($"starting iteration {iteration}");
-            yield return StartEncounter();
+            Debug.Log($"starting episode {iteration}");
+            yield return StartEpisode();
             break; // todo: make different save directories
         }
         Debug.Log("end of simulation");
     }
     
-    private IEnumerator StartEncounter()
+    private IEnumerator StartEpisode()
     {
-        var shipDirection = new Vector3(-1, 0, -1).normalized;
-        var shipSpeed = 3f;
-        var objectToBoardDistance = 10f;
+        var episodeConfig = metaConfig.Sample();
+        ConfigureEnvironment(episodeConfig);
+
+        var shipDirection = episodeConfig.ShipDirection; // new Vector3(-1, 0, -1).normalized;
+        var shipSpeed = episodeConfig.ShipSpeed; // 3f;
+        var objectToBoardDistance = episodeConfig.ObjectToBoatDistance; // 10f;
         var hopDistance = shipSpeed * intervalBetweenCapture;
-        var objectHorizontalShift = objectToBoardDistance + 2 * hopDistance;    // todo: add random value to diversify object position
+
+        var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance 
+            + episodeConfig.ObjectDisplacement * hopDistance;    // todo: add random value to diversify object position
         shipMover.SetParamsAndReset(shipDirection, shipSpeed,
-            rollOscillator: Oscillator.MakeEmpty().AddBand(2, 11, 0.25f),
-            pitchOscillator: Oscillator.MakeEmpty().AddBand(2, 15, 0),
-            heaveOscillator: Oscillator.MakeEmpty().AddBand(0.25f, 9, 0)
+            rollOscillator: new Oscillator(episodeConfig.ShipRollBands),
+            pitchOscillator: new Oscillator(episodeConfig.ShipPitchBands),
+            heaveOscillator: new Oscillator(episodeConfig.ShipHeaveBands)
             );
         AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
 
@@ -73,14 +89,16 @@ public class Main : MonoBehaviour
 
         var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
             + shipDirection * (objectHorizontalShift);
-        // todo: sample object and its rotation
+        // todo: sample object
         var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
+        obj.transform.localScale = episodeConfig.ObjectScale;
 
         yield return new WaitForSeconds(1f);    // warmup, maybe reduncant
 
-        var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipSpeed * intervalBetweenCapture)) + 2;
+        var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipSpeed * intervalBetweenCapture)) + 1;
         for (int i = 0; i < nSteps; i++)
         {
+            Debug.Log($"starting step {i} / {nSteps}");
             yield return new WaitForSeconds(intervalBetweenCapture);
             yield return new WaitForEndOfFrame();
             var timeScale = Time.timeScale;
@@ -88,7 +106,7 @@ public class Main : MonoBehaviour
             yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
             floatingWizard.AdjustToSurface(obj);
             Debug.Log("surface adjustment complete");
-            yield return new WaitForSecondsRealtime(0.3f);
+            yield return new WaitForSecondsRealtime(0.8f);
             yield return new WaitForEndOfFrame();
             Debug.Log("before capturing");
 
@@ -97,11 +115,12 @@ public class Main : MonoBehaviour
             Debug.Log("results saved");
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();   // just to be sure
-            shipMover.AdjustPosition(i * intervalBetweenCapture);
+            shipMover.AdjustPosition((i + 1) * intervalBetweenCapture);
             AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
             Time.timeScale = timeScale;
-            Debug.Log($"step {i} / {nSteps}");
         }
+
+        Destroy(obj);   // who needs this junk
     }
 
     private void CaptureAllCameras(int counter)
@@ -123,5 +142,67 @@ public class Main : MonoBehaviour
         }
         horizonDetectionPlane.transform.position = new Vector3(cameraPosition.x, 
             horizonDetectionPlane.transform.position.y, cameraPosition.z);
+    }
+
+    private void ConfigureEnvironment(EpisodeConfig config)
+    {
+        // WATER
+        targetSurface.transform.rotation = Quaternion.Euler(new Vector3(0, config.WaterRotation, 0));
+        targetSurface.largeWindSpeed = config.WaterDistantWindSpeed;
+        targetSurface.largeChaos = config.WaterChaos;
+        targetSurface.largeBand0Multiplier = config.WaterFirstBandAmplitude;
+        targetSurface.largeBand1Multiplier = config.WaterSecondBandAmplitude;
+        targetSurface.ripplesWindSpeed = config.WaterRipplesWindSpeed;
+        targetSurface.ripplesChaos = config.WaterRipplesChaos;
+        targetSurface.refractionColor = config.WaterColor;
+        targetSurface.scatteringColor = config.WaterColor;
+        targetSurface.absorptionDistance = config.WaterAbsorptionDistance;
+        targetSurface.foamPersistenceMultiplier = config.FoamPersistenceMultipier;
+        targetSurface.foamColor = config.FoamColor;
+        targetSurface.foamSmoothness = config.FoamSmoothness;
+        targetSurface.simulationFoamAmount = config.FoamAmount;
+
+        // LIGHT
+        sunLight.transform.rotation = Quaternion.Euler(config.LightRotation);
+        if (!sunLight.gameObject.TryGetComponent<HDAdditionalLightData>(out var lightData))
+        {
+            throw new ArgumentException("no HDAdditionalLightData found");
+        }
+        lightData.angularDiameter = config.LightAngularDiameter;
+
+        // SKY
+        if (!globalVolume.profile.TryGet<PhysicallyBasedSky>(out var physicallyBasedSky))
+        {
+            throw new ArgumentException("physically based sky volume component not found on global volume");
+        }
+        physicallyBasedSky.groundTint.value = config.SkyGroundTint;
+        
+        // CLOUDS
+        if (!globalVolume.profile.TryGet<VolumetricClouds>(out var volumetricClouds))
+        {
+            throw new ArgumentException("volumetric clouds volume component not found");
+        }
+        volumetricClouds.enable.value = true;
+        volumetricClouds.shapeOffset.value = config.CloudsShapeOffset;
+        switch (config.CloudsType)
+        {
+            case "Disabled":
+                volumetricClouds.enable.value = false;
+                break;
+            case "Sparse":
+                volumetricClouds.cloudPreset = VolumetricClouds.CloudPresets.Sparse;
+                break;
+            case "Cloudy":
+                volumetricClouds.cloudPreset = VolumetricClouds.CloudPresets.Cloudy;
+                break;
+            case "Stormy":
+                volumetricClouds.cloudPreset = VolumetricClouds.CloudPresets.Stormy;
+                break;
+            case "Overcast":
+                volumetricClouds.cloudPreset = VolumetricClouds.CloudPresets.Overcast;
+                break;
+            default:
+                throw new ArgumentException($"unknown cloud type {config.CloudsType}");
+        }
     }
 }
