@@ -41,7 +41,7 @@ public class FloatingWizard
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
-            Debug.Log(searchResult.projectedPositionWS);
+            //Debug.Log(searchResult.projectedPositionWS);
             obj.transform.position = searchResult.projectedPositionWS;
             
             // worldUp равен forward для того, чтобы объект дополнительно не выравнивался по оси X или Y

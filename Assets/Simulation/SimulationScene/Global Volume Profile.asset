@@ -93,7 +93,7 @@ MonoBehaviour:
     m_Value: 20000
   groundTint:
     m_OverrideState: 1
-    m_Value: {r: 0.05824758, g: 0.11381631, b: 0.20883931, a: 1}
+    m_Value: {r: 0.058247555, g: 0.11381627, b: 0.20883921, a: 1}
   groundColorTexture:
     m_OverrideState: 0
     m_Value: {fileID: 0}
@@ -408,8 +408,8 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 5
   shapeOffset:
-    m_OverrideState: 0
-    m_Value: {x: 0, y: 0, z: 0}
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0.1, z: 1}
   erosionFactor:
     m_OverrideState: 1
     m_Value: 0.85
@@ -447,8 +447,8 @@ MonoBehaviour:
   orientation:
     m_OverrideState: 0
     m_Value:
-      mode: 1
-      customValue: 0
+      mode: 0
+      customValue: 360
       additiveValue: 0
       multiplyValue: 1
   altitudeDistortion:
@@ -474,7 +474,7 @@ MonoBehaviour:
     m_Value: 0
   ghostingReduction:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   perceptualBlending:
     m_OverrideState: 1
     m_Value: 1

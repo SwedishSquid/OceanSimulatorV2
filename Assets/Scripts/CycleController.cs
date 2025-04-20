@@ -2,7 +2,6 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class CycleController : MonoBehaviour
 {
