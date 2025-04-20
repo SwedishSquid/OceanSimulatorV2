@@ -36,12 +36,16 @@ public class FloatingWizard
         searchParameters.targetPositionWS = obj.transform.position;
         searchParameters.error = 0.001f;
         searchParameters.maxIterations = 32;
+        searchParameters.outputNormal = true;
 
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
             Debug.Log(searchResult.projectedPositionWS);
             obj.transform.position = searchResult.projectedPositionWS;
+            
+            // worldUp равен forward для того, чтобы объект дополнительно не выравнивался по оси X или Y
+            obj.transform.LookAt(searchResult.projectedPositionWS - searchResult.normalWS, Vector3.forward);
         }
         else Debug.LogError("Can't Find Projected Position");
     }
