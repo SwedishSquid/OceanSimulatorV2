@@ -26,6 +26,7 @@ public class Main : MonoBehaviour
 
     private float toSurfaceAdjustmentPeriod = 1f;  // how much to wait before adjusting to surface in seconds; Improves accuracy
     private float intervalBetweenCapture = 3f;     //seconds
+    
     private string storeFolder = "dev_gen";
 
     private int paddingShots = 2;
@@ -46,6 +47,7 @@ public class Main : MonoBehaviour
 
     void Start()
     {
+        metaConfig.SaveMetaConfig(storeFolder);
         StartCoroutine(MainLoop());
     }
 

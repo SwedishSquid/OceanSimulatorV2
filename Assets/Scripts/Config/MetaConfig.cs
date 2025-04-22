@@ -1,11 +1,9 @@
-using NUnit.Framework;
+using System.IO;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.Rendering.STP;
+
 
 public class MetaConfig
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     public EpisodeConfig Sample()
     {
         var config = new EpisodeConfig();
@@ -20,6 +18,16 @@ public class MetaConfig
         // todo: sample object path
 
         return config;
+    }
+
+    public void SaveMetaConfig(string dstFolder)
+    {
+        var srcPath = Path.Combine(Application.dataPath, "Scripts/Config/MetaConfig.cs");
+        var dstFile = Path.Combine(dstFolder, "MetaConfigCheckpoint.cs");
+        var metaConfigContents = File.ReadAllText(srcPath);
+        File.Create(dstFile).Dispose();
+        File.WriteAllText(dstFile, metaConfigContents);
+        Debug.Log("MetaConfig saved");
     }
 
     private void ConfigureObject(EpisodeConfig config)
