@@ -131,7 +131,16 @@ public class Main : MonoBehaviour
             Debug.Log("before capturing");
 
             CaptureAllCameras(i, episodeDir);
-            
+
+            var stepLog = new EpisodeStepLogRecord()
+            {
+                objectPosition = obj.transform.position,
+                cameraPosition = cameraCase.transform.position,
+                cameraRotation = cameraCase.transform.rotation,
+                shipPosition = shipMover.transform.position,
+            };
+            SaveEpisodeStepLog(stepLog, i, episodeDir);
+
             Debug.Log("results saved");
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();   // just to be sure
@@ -141,6 +150,22 @@ public class Main : MonoBehaviour
         }
 
         Destroy(obj);   // who needs this junk
+        SaveEpisodeFinishedFlag(episodeDir);
+    }
+
+    private void SaveEpisodeStepLog(EpisodeStepLogRecord record, int frameCounter, string episodeDir)
+    {
+        var filepath = Path.Combine(episodeDir, "StepLogs", $"{frameCounter}.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+        File.Create(filepath).Dispose();
+        var content = JsonUtility.ToJson(record, prettyPrint: true);
+        File.WriteAllText(filepath, content);
+    }
+
+    private void SaveEpisodeFinishedFlag(string episodeDir)
+    {
+        var filepath = Path.Combine(episodeDir, "finished_flag.txt");
+        File.Create(filepath).Dispose();
     }
 
     private void CaptureAllCameras(int frameCounter, string episodeDir)
