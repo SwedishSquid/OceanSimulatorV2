@@ -28,6 +28,7 @@ public class Main : MonoBehaviour
     private float intervalBetweenCapture = 3f;     //seconds
     
     private string storeFolder = "dev_gen";
+    private bool throwIfEpisodeExists = true;
 
     private int paddingShots = 2;
 
@@ -63,15 +64,27 @@ public class Main : MonoBehaviour
         }
         Debug.Log("end of simulation");
     }
-    
+
+    private string InitializeEpisodeDirectory(EpisodeConfig config, int episodeIndex)
+    {
+        var episodeName = $"episode_{episodeIndex}";
+        var episodeDir = Path.Combine(storeFolder, episodeName);
+        if (Directory.Exists(episodeDir) && throwIfEpisodeExists)
+        {
+            throw new InvalidOperationException($"{episodeName} already exists - stopping to avoid overriding it");
+        }
+        Directory.CreateDirectory(episodeDir);
+        var configJson = JsonUtility.ToJson(config, prettyPrint: true);
+        File.WriteAllText(Path.Combine(episodeDir, "episode_config.json"), configJson);
+        return episodeDir;
+    }
+
     private IEnumerator StartEpisode(int episodeIndex)
     {
-        var episodeDirName = $"episode_{episodeIndex}";
         var episodeConfig = metaConfig.Sample();
+        var episodeDir = InitializeEpisodeDirectory(episodeConfig, episodeIndex);
+
         ConfigureEnvironment(episodeConfig);
-        Directory.CreateDirectory(Path.Combine(storeFolder, episodeDirName));
-        var configJson = JsonUtility.ToJson(episodeConfig, prettyPrint: true);
-        File.WriteAllText(Path.Combine(storeFolder, episodeDirName, "episode_config.json"), configJson);
 
         var shipDirection = episodeConfig.ShipDirection;
         var shipSpeed = episodeConfig.ShipSpeed;
@@ -93,13 +106,14 @@ public class Main : MonoBehaviour
 
         var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
             + shipDirection * (objectHorizontalShift);
+
         // todo: sample object
         var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
         obj.transform.localScale = episodeConfig.ObjectScale;
 
         capturer.AssignObjectIDs();
 
-        yield return new WaitForSeconds(1f);    // warmup, maybe reduncant
+        yield return new WaitForSeconds(1f);    // warmup, maybe redundant
 
         var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipSpeed * intervalBetweenCapture)) + 1;
         for (int i = 0; i < nSteps; i++)
@@ -116,7 +130,7 @@ public class Main : MonoBehaviour
             yield return new WaitForEndOfFrame();
             Debug.Log("before capturing");
 
-            CaptureAllCameras(i, episodeDirName);
+            CaptureAllCameras(i, episodeDir);
             
             Debug.Log("results saved");
             yield return new WaitForEndOfFrame();
@@ -129,13 +143,13 @@ public class Main : MonoBehaviour
         Destroy(obj);   // who needs this junk
     }
 
-    private void CaptureAllCameras(int frameCounter, string episodeDirName)
+    private void CaptureAllCameras(int frameCounter, string episodeDir)
     {
         foreach (var cs in capturer.cameraSettings)
         {
             string fileName = $"{frameCounter}.png";
             var cameraFolderName = cs.camera.name;
-            string filePath = Path.Combine(storeFolder, episodeDirName, cameraFolderName, fileName);
+            string filePath = Path.Combine(episodeDir, cameraFolderName, fileName);
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             capturer.CaptureAndSave(cs, filePath);
         }
