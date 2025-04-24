@@ -30,6 +30,8 @@ public class Main : MonoBehaviour
     private string storeFolder = "dev_gen";
     private bool throwIfEpisodeExists = true;
 
+    //private bool oneFrameEpisodeMode = true;
+
     private int paddingShots = 2;
 
     private MetaConfig metaConfig;
@@ -55,7 +57,7 @@ public class Main : MonoBehaviour
     private IEnumerator MainLoop()
     {
         var iteration = 0;
-        var nEpisodes = 5;
+        var nEpisodes = 15;
         while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");

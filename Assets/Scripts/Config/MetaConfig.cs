@@ -38,7 +38,8 @@ public class MetaConfig
         var maxDist = 75f;
         var farSize = 0.5f;
         var closeSize = 0.05f;
-        config.ObjectToBoatDistance = new HyperbolicDistribution(minDist, maxDist).Sample();
+        //config.ObjectToBoatDistance = new HyperbolicDistribution(minDist, maxDist).Sample();
+        config.ObjectToBoatDistance = maxDist;
         Debug.Log($"distance to board = {config.ObjectToBoatDistance}");
         var t = (config.ObjectToBoatDistance - minDist) / (maxDist - minDist);
         var expectedLinearSize = Mathf.LerpUnclamped(closeSize, farSize, t);
@@ -116,12 +117,13 @@ public class MetaConfig
 
         config.ShipSpeed = Random.Range(2.5f, 3.5f);    //todo: find real values
 
-        var maxRotationAmplitude = 0.5f;
-        config.ShipRollBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, maxRotationAmplitude), 
+        var rollAmplitudeDistribution = new ConditionalDistribution<float>(new NormalDistribution(2, 0.5f), v => v >= 0);
+        var pitchAmplitudeDistribution = new ConditionalDistribution<float>(new NormalDistribution(1f, 0.3f), v => v >= 0);
+        config.ShipRollBands = Oscillator.MakeEmpty().AddBand(rollAmplitudeDistribution.Sample(), 
             Random.Range(9f, 20f), 
             Random.Range(0f, 1f), 
             Random.Range(-1f, 1f)).bands;
-        config.ShipPitchBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, maxRotationAmplitude), 
+        config.ShipPitchBands = Oscillator.MakeEmpty().AddBand(pitchAmplitudeDistribution.Sample(), 
             Random.Range(10f, 17f),
             Random.Range(0f, 1f), Random.Range(-1f, 1f)).bands;
         config.ShipHeaveBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 0.1f), 

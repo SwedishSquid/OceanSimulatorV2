@@ -1578,8 +1578,8 @@ MonoBehaviour:
     width: 3888
     height: 2916
   DevResolution:
-    width: 972
-    height: 729
+    width: 1944
+    height: 1458
   cameraSettings:
   - camera: {fileID: 679036603}
   - camera: {fileID: 2003209170}
