@@ -58,7 +58,7 @@ public class Main : MonoBehaviour
     private IEnumerator MainLoop()
     {
         var iteration = 0;
-        var nEpisodes = 15;
+        var nEpisodes = 256;
         while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");
@@ -105,6 +105,18 @@ public class Main : MonoBehaviour
         return oneFrameDir;
     }
 
+    private GameObject SampleObject()
+    {
+        var colorDistribution = new DiscreteDistribution<Color?>
+            (new List<Color?>() { Color.white, null },
+            new List<double> { 0.4d, 0.6d }
+            );
+        return new ComplexObjectConstructor(UnityEngine.Random.Range(0.3f, 0.7f),
+            minComponentCount:4,
+            baseColor:colorDistribution.Sample())
+            .ConstructComplexRandomObject();
+    }
+
     private void ConfigureShipMover(EpisodeConfig episodeConfig)
     {
         var shipDirection = episodeConfig.ShipDirection;
@@ -140,8 +152,10 @@ public class Main : MonoBehaviour
             + shipMover.MovementDirection * (objectHorizontalShift);
 
         // todo: sample object
-        var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
-        obj.transform.localScale = episodeConfig.ObjectScale;
+        //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
+        var obj = SampleObject();
+        obj.transform.position = objSpawnLocation;
+        obj.transform.localScale = Vector3.Scale(obj.transform.localScale, episodeConfig.ObjectScale);
 
         capturer.AssignObjectIDs();
 
@@ -212,8 +226,11 @@ public class Main : MonoBehaviour
             + shipDirection * (objectHorizontalShift);
 
         // todo: sample object
-        var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
-        obj.transform.localScale = episodeConfig.ObjectScale;
+        //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
+        //obj.transform.localScale = episodeConfig.ObjectScale;
+        var obj = SampleObject();
+        obj.transform.position = objSpawnLocation;
+        obj.transform.localScale = Vector3.Scale(obj.transform.localScale, episodeConfig.ObjectScale);
 
         capturer.AssignObjectIDs();
 
