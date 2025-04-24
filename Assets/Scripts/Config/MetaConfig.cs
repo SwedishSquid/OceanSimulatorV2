@@ -38,8 +38,7 @@ public class MetaConfig
         var maxDist = 75f;
         var farSize = 0.5f;
         var closeSize = 0.05f;
-        //config.ObjectToBoatDistance = new HyperbolicDistribution(minDist, maxDist).Sample();
-        config.ObjectToBoatDistance = maxDist;
+        config.ObjectToBoatDistance = new HyperbolicDistribution(minDist, maxDist).Sample();
         Debug.Log($"distance to board = {config.ObjectToBoatDistance}");
         var t = (config.ObjectToBoatDistance - minDist) / (maxDist - minDist);
         var expectedLinearSize = Mathf.LerpUnclamped(closeSize, farSize, t);

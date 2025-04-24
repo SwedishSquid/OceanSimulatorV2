@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine.Rendering;
+using NUnit.Framework;
 
 public class Main : MonoBehaviour
 {
@@ -30,7 +31,7 @@ public class Main : MonoBehaviour
     private string storeFolder = "dev_gen";
     private bool throwIfEpisodeExists = true;
 
-    //private bool oneFrameEpisodeMode = true;
+    private bool oneFrameEpisodeMode = true;
 
     private int paddingShots = 2;
 
@@ -61,7 +62,14 @@ public class Main : MonoBehaviour
         while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");
-            yield return StartEpisode(iteration);
+            if (oneFrameEpisodeMode)
+            {
+                yield return StartOneFrameEpisode(iteration);
+            }
+            else
+            {
+                yield return StartEpisode(iteration);
+            }
             iteration++;
         }
         Debug.Log("end of simulation");
@@ -79,6 +87,100 @@ public class Main : MonoBehaviour
         var configJson = JsonUtility.ToJson(config, prettyPrint: true);
         File.WriteAllText(Path.Combine(episodeDir, "episode_config.json"), configJson);
         return episodeDir;
+    }
+
+    private string InitializeOneFrameEpisode(EpisodeConfig config, int episodeIndex)
+    {
+        var oneFrameDir = Path.Combine(storeFolder, "one_frame_episodes");
+        Directory.CreateDirectory(oneFrameDir);
+        var configJson = JsonUtility.ToJson(config, prettyPrint: true);
+        var configPath = Path.Combine(oneFrameDir, "configs", $"{episodeIndex}.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(configPath));
+        if (File.Exists(configPath) && throwIfEpisodeExists)
+        {
+            throw new InvalidOperationException($"one frame episode [{episodeIndex}] already exists!");
+        }
+        File.Create(configPath).Dispose();
+        File.WriteAllText(configPath, configJson);
+        return oneFrameDir;
+    }
+
+    private void ConfigureShipMover(EpisodeConfig episodeConfig)
+    {
+        var shipDirection = episodeConfig.ShipDirection;
+        var shipSpeed = episodeConfig.ShipSpeed;
+        shipMover.SetParamsAndReset(shipDirection, shipSpeed,
+            rollOscillator: new Oscillator(episodeConfig.ShipRollBands),
+            pitchOscillator: new Oscillator(episodeConfig.ShipPitchBands),
+            heaveOscillator: new Oscillator(episodeConfig.ShipHeaveBands)
+            );
+        AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
+    }
+
+    private IEnumerator StartOneFrameEpisode(int episodeIndex)
+    {
+        var episodeConfig = metaConfig.Sample();
+        var directory = InitializeOneFrameEpisode(episodeConfig, episodeIndex);
+
+        ConfigureEnvironment(episodeConfig);
+
+        ConfigureShipMover(episodeConfig);
+
+        var objectToBoardDistance = episodeConfig.ObjectToBoatDistance;
+        var hopDistance = shipMover.Speed * intervalBetweenCapture;
+
+        var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance
+            + episodeConfig.ObjectDisplacement * hopDistance;
+
+        var shipVelocityNomal = shipMover.gameObject.transform.forward;
+        shipVelocityNomal.y = 0;
+        shipVelocityNomal.Normalize();
+
+        var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
+            + shipMover.MovementDirection * (objectHorizontalShift);
+
+        // todo: sample object
+        var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
+        obj.transform.localScale = episodeConfig.ObjectScale;
+
+        capturer.AssignObjectIDs();
+
+        yield return new WaitForSeconds(1f);    // warmup, maybe redundant
+
+        var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipMover.Speed * intervalBetweenCapture)) + 1;
+        var stepIndex = UnityEngine.Random.Range(0 + 3, nSteps - 1 - 3);
+
+        Debug.Log($"chosen step is [{stepIndex} / {nSteps}]");
+
+        var timeScale = Time.timeScale;
+        Time.timeScale = 0;
+
+        shipMover.AdjustPosition(stepIndex * intervalBetweenCapture);
+        AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
+
+        yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
+        floatingWizard.AdjustToSurface(obj);
+        Debug.Log("surface adjustment complete");
+        yield return new WaitForSecondsRealtime(0.8f);
+        yield return new WaitForEndOfFrame();
+
+        CaptureAllCameras(episodeIndex, directory);
+
+        var stepLog = new EpisodeStepLogRecord()
+        {
+            objectPosition = obj.transform.position,
+            cameraPosition = cameraCase.transform.position,
+            cameraRotation = cameraCase.transform.rotation,
+            shipPosition = shipMover.transform.position,
+        };
+        SaveEpisodeStepLog(stepLog, episodeIndex, directory);
+        Debug.Log("results saved");
+
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();   // just to be sure
+        Time.timeScale = timeScale;
+
+        Destroy(obj);   // who needs this junk
     }
 
     private IEnumerator StartEpisode(int episodeIndex)
@@ -130,7 +232,6 @@ public class Main : MonoBehaviour
             Debug.Log("surface adjustment complete");
             yield return new WaitForSecondsRealtime(0.8f);
             yield return new WaitForEndOfFrame();
-            Debug.Log("before capturing");
 
             CaptureAllCameras(i, episodeDir);
 
@@ -172,6 +273,7 @@ public class Main : MonoBehaviour
 
     private void CaptureAllCameras(int frameCounter, string episodeDir)
     {
+        Debug.Log("start capturing");
         foreach (var cs in capturer.cameraSettings)
         {
             string fileName = $"{frameCounter}.png";
