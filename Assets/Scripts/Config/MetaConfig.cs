@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEngine;
+using System.Collections.Generic;
 
 
 public class MetaConfig
@@ -37,10 +38,19 @@ public class MetaConfig
         var maxDist = 75f;
         var farSize = 0.5f;
         var closeSize = 0.05f;
-        config.ObjectToBoatDistance = Random.Range(minDist, maxDist);
+        config.ObjectToBoatDistance = new HyperbolicDistribution(minDist, maxDist).Sample();
+        Debug.Log($"distance to board = {config.ObjectToBoatDistance}");
         var t = (config.ObjectToBoatDistance - minDist) / (maxDist - minDist);
-        var expectedLinearSize =  Mathf.LerpUnclamped(closeSize, farSize, t);
-        var sizeMultiplier = Random.Range(0.3f, 1.5f);
+        var expectedLinearSize = Mathf.LerpUnclamped(closeSize, farSize, t);
+        var sizeMultiplierDistribution = new ConditionalDistribution<float>(
+            new MixtureDistribution<float>(new List<IDistribution<float>> {
+                    new NormalDistribution(bias: 1, 0.3f),
+                    new NormalDistribution(bias:1.8f, std:0.5f)
+                }, 
+                new List<double> { 10d / 13d, 3d / 13d }
+            ), 
+            value => value >= 0.3f);
+        var sizeMultiplier = sizeMultiplierDistribution.Sample();
         config.ObjectScale = testMultiplier * sizeMultiplier * expectedLinearSize * Vector3.one;
         config.ObjectDisplacement = Random.Range(0f, 1f);
     }

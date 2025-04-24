@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-public class NormalDistribution : IDistribution
+public class NormalDistribution : IDistribution<float>
 {
     public float bias;
 

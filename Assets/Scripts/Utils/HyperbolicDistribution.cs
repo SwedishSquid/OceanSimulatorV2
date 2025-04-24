@@ -6,9 +6,9 @@ using UnityEngine;
 
 
 /// <summary>
-/// such a distribution, that pds(x) * x == const for fixed parameters
+/// such a distribution, that pdf(x) * x == const for fixed parameters
 /// </summary>
-public class HyperbolicDistribution : IDistribution
+public class HyperbolicDistribution : IDistribution<float>
 {
     public float min;
     public float max;
