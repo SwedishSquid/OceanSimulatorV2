@@ -554,7 +554,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &541289580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1573,7 +1573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9619a7e7482ede948adf3e07982185b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseMainResolution: 0
+  UseMainResolution: 1
   MainResolution:
     width: 3888
     height: 2916

@@ -51,6 +51,7 @@ public class Main : MonoBehaviour
 
     void Start()
     {
+        targetSurface.gameObject.SetActive(true);
         metaConfig.SaveMetaConfig(storeFolder);
         StartCoroutine(MainLoop());
     }
@@ -58,7 +59,7 @@ public class Main : MonoBehaviour
     private IEnumerator MainLoop()
     {
         var iteration = 0;
-        var nEpisodes = 256;
+        var nEpisodes = 1024;
         while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");
@@ -73,6 +74,7 @@ public class Main : MonoBehaviour
             iteration++;
         }
         Debug.Log("end of simulation");
+        UnityEditor.EditorApplication.isPlaying = false;
     }
 
     private string InitializeEpisodeDirectory(EpisodeConfig config, int episodeIndex)
