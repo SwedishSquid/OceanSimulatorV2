@@ -1,11 +1,10 @@
-using NUnit.Framework;
+using System.IO;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.Rendering.STP;
+using System.Collections.Generic;
+
 
 public class MetaConfig
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     public EpisodeConfig Sample()
     {
         var config = new EpisodeConfig();
@@ -22,6 +21,16 @@ public class MetaConfig
         return config;
     }
 
+    public void SaveMetaConfig(string dstFolder)
+    {
+        var srcPath = Path.Combine(Application.dataPath, "Scripts/Config/MetaConfig.cs");
+        var dstFile = Path.Combine(dstFolder, "MetaConfigCheckpoint.cs");
+        var metaConfigContents = File.ReadAllText(srcPath);
+        File.Create(dstFile).Dispose();
+        File.WriteAllText(dstFile, metaConfigContents);
+        Debug.Log("MetaConfig saved");
+    }
+
     private void ConfigureObject(EpisodeConfig config)
     {
         var testMultiplier = 1f; //10f;
@@ -29,10 +38,19 @@ public class MetaConfig
         var maxDist = 75f;
         var farSize = 0.5f;
         var closeSize = 0.05f;
-        config.ObjectToBoatDistance = Random.Range(minDist, maxDist);
+        config.ObjectToBoatDistance = new HyperbolicDistribution(minDist, maxDist).Sample();
+        Debug.Log($"distance to board = {config.ObjectToBoatDistance}");
         var t = (config.ObjectToBoatDistance - minDist) / (maxDist - minDist);
-        var expectedLinearSize =  Mathf.LerpUnclamped(closeSize, farSize, t);
-        var sizeMultiplier = Random.Range(0.3f, 1.5f);
+        var expectedLinearSize = Mathf.LerpUnclamped(closeSize, farSize, t);
+        var sizeMultiplierDistribution = new ConditionalDistribution<float>(
+            new MixtureDistribution<float>(new List<IDistribution<float>> {
+                    new NormalDistribution(bias: 1, 0.3f),
+                    new NormalDistribution(bias:1.8f, std:0.5f)
+                }, 
+                new List<double> { 10d / 13d, 3d / 13d }
+            ), 
+            value => value >= 0.3f);
+        var sizeMultiplier = sizeMultiplierDistribution.Sample();
         config.ObjectScale = testMultiplier * sizeMultiplier * expectedLinearSize * Vector3.one;
         config.ObjectDisplacement = Random.Range(0f, 1f);
     }
@@ -98,12 +116,13 @@ public class MetaConfig
 
         config.ShipSpeed = Random.Range(2.5f, 3.5f);    //todo: find real values
 
-        var maxRotationAmplitude = 0.5f;
-        config.ShipRollBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, maxRotationAmplitude), 
+        var rollAmplitudeDistribution = new ConditionalDistribution<float>(new NormalDistribution(2, 0.5f), v => v >= 0);
+        var pitchAmplitudeDistribution = new ConditionalDistribution<float>(new NormalDistribution(1f, 0.3f), v => v >= 0);
+        config.ShipRollBands = Oscillator.MakeEmpty().AddBand(rollAmplitudeDistribution.Sample(), 
             Random.Range(9f, 20f), 
             Random.Range(0f, 1f), 
             Random.Range(-1f, 1f)).bands;
-        config.ShipPitchBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, maxRotationAmplitude), 
+        config.ShipPitchBands = Oscillator.MakeEmpty().AddBand(pitchAmplitudeDistribution.Sample(), 
             Random.Range(10f, 17f),
             Random.Range(0f, 1f), Random.Range(-1f, 1f)).bands;
         config.ShipHeaveBands = Oscillator.MakeEmpty().AddBand(Random.Range(0f, 0.1f), 
