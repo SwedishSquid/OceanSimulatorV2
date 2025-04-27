@@ -69,7 +69,8 @@ public class Main : MonoBehaviour
             }
             else
             {
-                yield return StartEpisode(iteration);
+                throw new NotImplementedException();
+                //yield return StartEpisode(iteration);
             }
             iteration++;
         }
@@ -109,14 +110,17 @@ public class Main : MonoBehaviour
 
     private GameObject SampleObject()
     {
-        var colorDistribution = new DiscreteDistribution<Color?>
-            (new List<Color?>() { Color.white, null },
-            new List<double> { 0.4d, 0.6d }
-            );
-        return new ComplexObjectConstructor(UnityEngine.Random.Range(0.3f, 0.7f),
-            minComponentCount:4,
-            baseColor:colorDistribution.Sample())
-            .ConstructComplexRandomObject();
+        //var colorDistribution = new DiscreteDistribution<Color?>
+        //    (new List<Color?>() { Color.white, null },
+        //    new List<double> { 0.4d, 0.6d }
+        //    );
+        //return new ComplexObjectConstructor(UnityEngine.Random.Range(0.3f, 0.7f),
+        //    minComponentCount:4,
+        //    baseColor:colorDistribution.Sample())
+        //    .ConstructComplexRandomObject();
+
+        var obj = Instantiate(objectPrefabs[UnityEngine.Random.Range(0, objectPrefabs.Length)]);
+        return obj;
     }
 
     private void ConfigureShipMover(EpisodeConfig episodeConfig)
@@ -199,81 +203,81 @@ public class Main : MonoBehaviour
         Destroy(obj);   // who needs this junk
     }
 
-    private IEnumerator StartEpisode(int episodeIndex)
-    {
-        var episodeConfig = metaConfig.Sample();
-        var episodeDir = InitializeEpisodeDirectory(episodeConfig, episodeIndex);
+    //private IEnumerator StartEpisode(int episodeIndex)
+    //{
+    //    var episodeConfig = metaConfig.Sample();
+    //    var episodeDir = InitializeEpisodeDirectory(episodeConfig, episodeIndex);
 
-        ConfigureEnvironment(episodeConfig);
+    //    ConfigureEnvironment(episodeConfig);
 
-        var shipDirection = episodeConfig.ShipDirection;
-        var shipSpeed = episodeConfig.ShipSpeed;
-        var objectToBoardDistance = episodeConfig.ObjectToBoatDistance;
-        var hopDistance = shipSpeed * intervalBetweenCapture;
+    //    var shipDirection = episodeConfig.ShipDirection;
+    //    var shipSpeed = episodeConfig.ShipSpeed;
+    //    var objectToBoardDistance = episodeConfig.ObjectToBoatDistance;
+    //    var hopDistance = shipSpeed * intervalBetweenCapture;
 
-        var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance 
-            + episodeConfig.ObjectDisplacement * hopDistance;
-        shipMover.SetParamsAndReset(shipDirection, shipSpeed,
-            rollOscillator: new Oscillator(episodeConfig.ShipRollBands),
-            pitchOscillator: new Oscillator(episodeConfig.ShipPitchBands),
-            heaveOscillator: new Oscillator(episodeConfig.ShipHeaveBands)
-            );
-        AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
+    //    var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance 
+    //        + episodeConfig.ObjectDisplacement * hopDistance;
+    //    shipMover.SetParamsAndReset(shipDirection, shipSpeed,
+    //        rollOscillator: new Oscillator(episodeConfig.ShipRollBands),
+    //        pitchOscillator: new Oscillator(episodeConfig.ShipPitchBands),
+    //        heaveOscillator: new Oscillator(episodeConfig.ShipHeaveBands)
+    //        );
+    //    AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
 
-        var shipVelocityNomal = shipMover.gameObject.transform.forward;
-        shipVelocityNomal.y = 0;
-        shipVelocityNomal.Normalize();
+    //    var shipVelocityNomal = shipMover.gameObject.transform.forward;
+    //    shipVelocityNomal.y = 0;
+    //    shipVelocityNomal.Normalize();
 
-        var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
-            + shipDirection * (objectHorizontalShift);
+    //    var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
+    //        + shipDirection * (objectHorizontalShift);
 
-        // todo: sample object
-        //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
-        //obj.transform.localScale = episodeConfig.ObjectScale;
-        var obj = SampleObject();
-        obj.transform.position = objSpawnLocation;
-        obj.transform.localScale = Vector3.Scale(obj.transform.localScale, episodeConfig.ObjectScale);
+    //    // todo: sample object
+    //    //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
+    //    //obj.transform.localScale = episodeConfig.ObjectScale;
+    //    var obj = SampleObject();
+    //    obj.transform.position = objSpawnLocation;
+    //    obj.transform.localScale = Vector3.Scale(obj.transform.localScale, episodeConfig.ObjectScale);
 
-        capturer.AssignObjectIDs();
+    //    capturer.AssignObjectIDs();
 
-        yield return new WaitForSeconds(1f);    // warmup, maybe redundant
+    //    yield return new WaitForSeconds(1f);    // warmup, maybe redundant
 
-        var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipSpeed * intervalBetweenCapture)) + 1;
-        for (int i = 0; i < nSteps; i++)
-        {
-            Debug.Log($"starting step {i} / {nSteps}");
-            yield return new WaitForSeconds(intervalBetweenCapture);
-            yield return new WaitForEndOfFrame();
-            var timeScale = Time.timeScale;
-            Time.timeScale = 0;
-            yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
-            floatingWizard.AdjustToSurface(obj);
-            Debug.Log("surface adjustment complete");
-            yield return new WaitForSecondsRealtime(0.8f);
-            yield return new WaitForEndOfFrame();
+    //    var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipSpeed * intervalBetweenCapture)) + 1;
+    //    for (int i = 0; i < nSteps; i++)
+    //    {
+    //        Debug.Log($"starting step {i} / {nSteps}");
+    //        yield return new WaitForSeconds(intervalBetweenCapture);
+    //        yield return new WaitForEndOfFrame();
+    //        var timeScale = Time.timeScale;
+    //        Time.timeScale = 0;
+    //        yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
+    //        floatingWizard.AdjustToSurface(obj);
+    //        Debug.Log("surface adjustment complete");
+    //        yield return new WaitForSecondsRealtime(0.8f);
+    //        yield return new WaitForEndOfFrame();
 
-            CaptureAllCameras(i, episodeDir);
+    //        CaptureAllCameras(i, episodeDir);
 
-            var stepLog = new EpisodeStepLogRecord()
-            {
-                objectPosition = obj.transform.position,
-                cameraPosition = cameraCase.transform.position,
-                cameraRotation = cameraCase.transform.rotation,
-                shipPosition = shipMover.transform.position,
-            };
-            SaveEpisodeStepLog(stepLog, i, episodeDir);
+    //        var stepLog = new EpisodeStepLogRecord()
+    //        {
+    //            objectPosition = obj.transform.position,
+    //            cameraPosition = cameraCase.transform.position,
+    //            cameraRotation = cameraCase.transform.rotation,
+    //            shipPosition = shipMover.transform.position,
+    //        };
+    //        SaveEpisodeStepLog(stepLog, i, episodeDir);
 
-            Debug.Log("results saved");
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();   // just to be sure
-            shipMover.AdjustPosition((i + 1) * intervalBetweenCapture);
-            AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
-            Time.timeScale = timeScale;
-        }
+    //        Debug.Log("results saved");
+    //        yield return new WaitForEndOfFrame();
+    //        yield return new WaitForEndOfFrame();   // just to be sure
+    //        shipMover.AdjustPosition((i + 1) * intervalBetweenCapture);
+    //        AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
+    //        Time.timeScale = timeScale;
+    //    }
 
-        Destroy(obj);   // who needs this junk
-        SaveEpisodeFinishedFlag(episodeDir);
-    }
+    //    Destroy(obj);   // who needs this junk
+    //    SaveEpisodeFinishedFlag(episodeDir);
+    //}
 
     private void SaveEpisodeStepLog(EpisodeStepLogRecord record, int frameCounter, string episodeDir)
     {
