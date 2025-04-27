@@ -44,13 +44,15 @@ public class Main : MonoBehaviour
             throw new ArgumentException("not all dependencies set");
         }
         floatingWizard = new FloatingWizard(targetSurface);
-        objectPrefabs = Resources.LoadAll<GameObject>("ObjectPrefabs");
+        objectPrefabs = new PrefabFetcher().FetchAllPrefabs().ToArray();
 
         metaConfig = new MetaConfig();
     }
 
     void Start()
     {
+        DisableTemporalCameraEffects();
+
         targetSurface.gameObject.SetActive(true);
         metaConfig.SaveMetaConfig(storeFolder);
         StartCoroutine(MainLoop());
@@ -76,6 +78,28 @@ public class Main : MonoBehaviour
         }
         Debug.Log("end of simulation");
         UnityEditor.EditorApplication.isPlaying = false;
+    }
+
+    private void DisableTemporalCameraEffects()
+    {
+        foreach (var cs in capturer.cameraSettings)
+        {
+            var camera = cs.camera;
+            var hdCameraData = camera.GetComponent<HDAdditionalCameraData>();
+            hdCameraData.antialiasing = HDAdditionalCameraData.AntialiasingMode.None;
+        }
+
+        if (globalVolume.profile.TryGet<MotionBlur>(out var motionBlur))
+        {
+            motionBlur.active = false;
+            Debug.Log("MotionBlur volume effect disabled");
+        }
+        else
+        {
+            Debug.Log("MotionBlur volume was not found; assuming it is disabled");
+        }
+
+        Debug.Log("temporal camera effects disabled");
     }
 
     private string InitializeEpisodeDirectory(EpisodeConfig config, int episodeIndex)
@@ -181,10 +205,10 @@ public class Main : MonoBehaviour
         yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
         floatingWizard.AdjustToSurface(obj);
         Debug.Log("surface adjustment complete");
-        yield return new WaitForSecondsRealtime(0.8f);
+        yield return new WaitForSecondsRealtime(0.8f);  // what is this for?
         yield return new WaitForEndOfFrame();
 
-        CaptureAllCameras(episodeIndex, directory);
+        yield return CaptureAllCameras(episodeIndex, directory);
 
         var stepLog = new EpisodeStepLogRecord()
         {
@@ -294,8 +318,14 @@ public class Main : MonoBehaviour
         File.Create(filepath).Dispose();
     }
 
-    private void CaptureAllCameras(int frameCounter, string episodeDir)
+    private IEnumerator CaptureAllCameras(int frameCounter, string episodeDir)
     {
+        // to clear temporal buffers or something
+        for (int i = 0; i < 5; i++)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
         Debug.Log("start capturing");
         foreach (var cs in capturer.cameraSettings)
         {
