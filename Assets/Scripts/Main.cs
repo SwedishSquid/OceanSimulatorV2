@@ -161,6 +161,8 @@ public class Main : MonoBehaviour
 
     private IEnumerator StartOneFrameEpisode(int episodeIndex)
     {
+        var cameraMoveCooldown = 1f;
+
         var episodeConfig = metaConfig.Sample();
         var directory = InitializeOneFrameEpisode(episodeConfig, episodeIndex);
 
@@ -196,11 +198,13 @@ public class Main : MonoBehaviour
 
         Debug.Log($"chosen step is [{stepIndex} / {nSteps}]");
 
-        var timeScale = Time.timeScale;
-        Time.timeScale = 0;
-
         shipMover.AdjustPosition(stepIndex * intervalBetweenCapture);
         AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
+
+        yield return new WaitForSeconds(cameraMoveCooldown);
+
+        var timeScale = Time.timeScale;
+        Time.timeScale = 0;
 
         yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
         floatingWizard.AdjustToSurface(obj);
