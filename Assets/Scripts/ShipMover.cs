@@ -3,7 +3,7 @@ using UnityEngine;
 public class ShipMover : MonoBehaviour
 {
     [HideInInspector]
-    public Vector3 MovementDirection => -transform.right;
+    public Vector3 MovementDirection { get; private set; }
 
     public float Speed { get; private set; }
 
@@ -27,6 +27,7 @@ public class ShipMover : MonoBehaviour
     {
         transform.rotation = Quaternion.identity;
         transform.position = InitialPosition;
+        MovementDirection = movementDirection;
         transform.right = -movementDirection;
         ReferenceRotation = transform.rotation;
         Speed = speed;

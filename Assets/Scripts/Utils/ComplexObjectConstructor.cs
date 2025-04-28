@@ -23,7 +23,7 @@ public class ComplexObjectConstructor
         this.minComponentCount = minComponentCount;
         this.maxComponentCount = maxComponentCount;
 
-        if (baseColor != null )
+        if (baseColor != null)
         {
             this.baseColor = (Color)baseColor;
         }

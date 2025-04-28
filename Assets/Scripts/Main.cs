@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 public class Main : MonoBehaviour
 {
-    public WaterSurface targetSurface;
+    public WaterSurface waterSurface;
 
     public Volume globalVolume;
 
@@ -31,7 +31,7 @@ public class Main : MonoBehaviour
     private string storeFolder = "dev_gen";
     private bool throwIfEpisodeExists = true;
 
-    private bool oneFrameEpisodeMode = true;
+    //private bool oneFrameEpisodeMode = true;
 
     private int paddingShots = 2;
 
@@ -39,11 +39,11 @@ public class Main : MonoBehaviour
 
     private void Awake()
     {
-        if (shipMover == null || cameraCase == null || targetSurface == null || capturer == null || globalVolume == null)
+        if (shipMover == null || cameraCase == null || waterSurface == null || capturer == null || globalVolume == null)
         {
             throw new ArgumentException("not all dependencies set");
         }
-        floatingWizard = new FloatingWizard(targetSurface);
+        floatingWizard = new FloatingWizard(waterSurface);
         objectPrefabs = new PrefabFetcher().FetchAllPrefabs().ToArray();
 
         metaConfig = new MetaConfig();
@@ -51,9 +51,9 @@ public class Main : MonoBehaviour
 
     void Start()
     {
-        DisableTemporalCameraEffects();
+        //DisableTemporalCameraEffects();
 
-        targetSurface.gameObject.SetActive(true);
+        waterSurface.gameObject.SetActive(true);
         metaConfig.SaveMetaConfig(storeFolder);
         StartCoroutine(MainLoop());
     }
@@ -62,45 +62,49 @@ public class Main : MonoBehaviour
     {
         var iteration = 0;
         var nEpisodes = 1024;
+
+        yield return new WaitForSeconds(2f);    // warmup
+
         while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");
-            if (oneFrameEpisodeMode)
-            {
-                yield return StartOneFrameEpisode(iteration);
-            }
-            else
-            {
-                throw new NotImplementedException();
-                //yield return StartEpisode(iteration);
-            }
+            yield return StartMultiObjectOneFrameEpisode(iteration);
+            //if (oneFrameEpisodeMode)
+            //{
+            //    yield return StartOneFrameEpisode(iteration);
+            //}
+            //else
+            //{
+            //    throw new NotImplementedException();
+            //    //yield return StartEpisode(iteration);
+            //}
             iteration++;
         }
         Debug.Log("end of simulation");
         UnityEditor.EditorApplication.isPlaying = false;
     }
 
-    private void DisableTemporalCameraEffects()
-    {
-        foreach (var cs in capturer.cameraSettings)
-        {
-            var camera = cs.camera;
-            var hdCameraData = camera.GetComponent<HDAdditionalCameraData>();
-            hdCameraData.antialiasing = HDAdditionalCameraData.AntialiasingMode.None;
-        }
+    //private void DisableTemporalCameraEffects()
+    //{
+    //    foreach (var cs in capturer.cameraSettings)
+    //    {
+    //        var camera = cs.camera;
+    //        var hdCameraData = camera.GetComponent<HDAdditionalCameraData>();
+    //        hdCameraData.antialiasing = HDAdditionalCameraData.AntialiasingMode.None;
+    //    }
 
-        if (globalVolume.profile.TryGet<MotionBlur>(out var motionBlur))
-        {
-            motionBlur.active = false;
-            Debug.Log("MotionBlur volume effect disabled");
-        }
-        else
-        {
-            Debug.Log("MotionBlur volume was not found; assuming it is disabled");
-        }
+    //    if (globalVolume.profile.TryGet<MotionBlur>(out var motionBlur))
+    //    {
+    //        motionBlur.active = false;
+    //        Debug.Log("MotionBlur volume effect disabled");
+    //    }
+    //    else
+    //    {
+    //        Debug.Log("MotionBlur volume was not found; assuming it is disabled");
+    //    }
 
-        Debug.Log("temporal camera effects disabled");
-    }
+    //    Debug.Log("temporal camera effects disabled");
+    //}
 
     private string InitializeEpisodeDirectory(EpisodeConfig config, int episodeIndex)
     {
@@ -134,13 +138,18 @@ public class Main : MonoBehaviour
 
     private GameObject SampleObject()
     {
+        //new ConditionalDistribution<float>(
+        //        new NormalDistribution(bias: 0.8f, std: 0.25f),
+        //        value => value <= 1f && value >= 0
+        //    ).Sample();
+
         //var colorDistribution = new DiscreteDistribution<Color?>
         //    (new List<Color?>() { Color.white, null },
         //    new List<double> { 0.4d, 0.6d }
         //    );
         //return new ComplexObjectConstructor(UnityEngine.Random.Range(0.3f, 0.7f),
-        //    minComponentCount:4,
-        //    baseColor:colorDistribution.Sample())
+        //    minComponentCount: 4,
+        //    baseColor: colorDistribution.Sample())
         //    .ConstructComplexRandomObject();
 
         var obj = Instantiate(objectPrefabs[UnityEngine.Random.Range(0, objectPrefabs.Length)]);
@@ -159,10 +168,35 @@ public class Main : MonoBehaviour
         AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
     }
 
-    private IEnumerator StartOneFrameEpisode(int episodeIndex)
+    private List<GameObject> SpawnObjects(EpisodeConfig episodeConfig)
     {
-        var cameraMoveCooldown = 1f;
+        var shipVelocityNomal = shipMover.gameObject.transform.forward;
+        shipVelocityNomal.y = 0;
+        shipVelocityNomal.Normalize();
 
+        var objects = new List<GameObject>();
+
+        foreach (var objConfig in episodeConfig.ObjectConfigs)
+        {
+            var placementDirection = shipVelocityNomal + shipMover.MovementDirection * UnityEngine.Random.Range(-1f, 1f);
+
+            var objSpawnLocation = cameraCase.transform.position + placementDirection * objConfig.ToShipboardDistance;
+
+            var obj = SampleObject();
+            obj.transform.position = objSpawnLocation;
+            obj.transform.localScale = Vector3.Scale(obj.transform.localScale, objConfig.Scale);
+            foreach (var tr in obj.GetComponentsInChildren<Transform>())
+            {
+                tr.gameObject.tag = "Object";
+            }
+            objects.Add(obj);
+        }
+
+        return objects;
+    }
+
+    private IEnumerator StartMultiObjectOneFrameEpisode(int episodeIndex)
+    {
         var episodeConfig = metaConfig.Sample();
         var directory = InitializeOneFrameEpisode(episodeConfig, episodeIndex);
 
@@ -170,44 +204,20 @@ public class Main : MonoBehaviour
 
         ConfigureShipMover(episodeConfig);
 
-        var objectToBoardDistance = episodeConfig.ObjectToBoatDistance;
-        var hopDistance = shipMover.Speed * intervalBetweenCapture;
-
-        var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance
-            + episodeConfig.ObjectDisplacement * hopDistance;
-
-        var shipVelocityNomal = shipMover.gameObject.transform.forward;
-        shipVelocityNomal.y = 0;
-        shipVelocityNomal.Normalize();
-
-        var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
-            + shipMover.MovementDirection * (objectHorizontalShift);
-
-        // todo: sample object
-        //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
-        var obj = SampleObject();
-        obj.transform.position = objSpawnLocation;
-        obj.transform.localScale = Vector3.Scale(obj.transform.localScale, episodeConfig.ObjectScale);
+        var objects = SpawnObjects(episodeConfig);
 
         capturer.AssignObjectIDs();
 
-        yield return new WaitForSeconds(1f);    // warmup, maybe redundant
-
-        var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipMover.Speed * intervalBetweenCapture)) + 1;
-        var stepIndex = UnityEngine.Random.Range(0 + 3, nSteps - 1 - 3);
-
-        Debug.Log($"chosen step is [{stepIndex} / {nSteps}]");
-
-        shipMover.AdjustPosition(stepIndex * intervalBetweenCapture);
-        AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
-
-        yield return new WaitForSeconds(cameraMoveCooldown);
-
-        var timeScale = Time.timeScale;
-        Time.timeScale = 0;
+        var actualTimeMultiplier = waterSurface.timeMultiplier;
+        waterSurface.timeMultiplier = 0;
 
         yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
-        floatingWizard.AdjustToSurface(obj);
+
+        foreach (var obj in objects)
+        {
+            floatingWizard.AdjustToSurface(obj);
+        }
+
         Debug.Log("surface adjustment complete");
         yield return new WaitForSecondsRealtime(0.8f);  // what is this for?
         yield return new WaitForEndOfFrame();
@@ -216,7 +226,7 @@ public class Main : MonoBehaviour
 
         var stepLog = new EpisodeStepLogRecord()
         {
-            objectPosition = obj.transform.position,
+            //objectPosition = obj.transform.position,
             cameraPosition = cameraCase.transform.position,
             cameraRotation = cameraCase.transform.rotation,
             shipPosition = shipMover.transform.position,
@@ -224,16 +234,95 @@ public class Main : MonoBehaviour
         SaveEpisodeStepLog(stepLog, episodeIndex, directory);
         Debug.Log("results saved");
 
-        yield return new WaitForSecondsRealtime(1f);
+        //yield return new WaitForSecondsRealtime(1f);
 
         yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();   // just to be sure
-        Time.timeScale = timeScale;
 
-        yield return new WaitForSeconds(1f);
+        waterSurface.timeMultiplier = actualTimeMultiplier;
 
-        Destroy(obj);   // who needs this junk
+        foreach (var obj in objects)
+        {
+            Destroy(obj);
+        }
     }
+
+    //private IEnumerator StartOneFrameEpisode(int episodeIndex)
+    //{
+    //    var cameraMoveCooldown = 1f;
+
+    //    var episodeConfig = metaConfig.Sample();
+    //    var directory = InitializeOneFrameEpisode(episodeConfig, episodeIndex);
+
+    //    ConfigureEnvironment(episodeConfig);
+
+    //    ConfigureShipMover(episodeConfig);
+
+    //    var objectToBoardDistance = episodeConfig.ObjectToBoatDistance;
+    //    var hopDistance = shipMover.Speed * intervalBetweenCapture;
+
+    //    var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance
+    //        + episodeConfig.ObjectDisplacement * hopDistance;
+
+    //    var shipVelocityNomal = shipMover.gameObject.transform.forward;
+    //    shipVelocityNomal.y = 0;
+    //    shipVelocityNomal.Normalize();
+
+    //    var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
+    //        + shipMover.MovementDirection * (objectHorizontalShift);
+
+    //    // todo: sample object
+    //    //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
+    //    var obj = SampleObject();
+    //    obj.transform.position = objSpawnLocation;
+    //    obj.transform.localScale = Vector3.Scale(obj.transform.localScale, episodeConfig.ObjectScale);
+
+    //    capturer.AssignObjectIDs();
+
+    //    yield return new WaitForSeconds(1f);    // warmup, maybe redundant
+
+    //    var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipMover.Speed * intervalBetweenCapture)) + 1;
+    //    var stepIndex = UnityEngine.Random.Range(0 + 3, nSteps - 1 - 3);
+
+    //    Debug.Log($"chosen step is [{stepIndex} / {nSteps}]");
+
+    //    shipMover.AdjustPosition(stepIndex * intervalBetweenCapture);
+    //    AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
+
+    //    yield return new WaitForSeconds(cameraMoveCooldown);
+
+    //    var timeScale = Time.timeScale;
+    //    Time.timeScale = 0;
+
+    //    yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
+    //    floatingWizard.AdjustToSurface(obj);
+    //    Debug.Log("surface adjustment complete");
+    //    yield return new WaitForSecondsRealtime(0.8f);  // what is this for?
+    //    yield return new WaitForEndOfFrame();
+
+    //    yield return CaptureAllCameras(episodeIndex, directory);
+
+    //    var stepLog = new EpisodeStepLogRecord()
+    //    {
+    //        objectPosition = obj.transform.position,
+    //        cameraPosition = cameraCase.transform.position,
+    //        cameraRotation = cameraCase.transform.rotation,
+    //        shipPosition = shipMover.transform.position,
+    //    };
+    //    SaveEpisodeStepLog(stepLog, episodeIndex, directory);
+    //    Debug.Log("results saved");
+
+    //    yield return new WaitForSecondsRealtime(1f);
+
+    //    yield return new WaitForEndOfFrame();
+    //    yield return new WaitForEndOfFrame();   // just to be sure
+    //    Time.timeScale = timeScale;
+
+    //    yield return new WaitForSeconds(1f);
+
+    //    Destroy(obj);   // who needs this junk
+    //}
 
     //private IEnumerator StartEpisode(int episodeIndex)
     //{
@@ -359,21 +448,21 @@ public class Main : MonoBehaviour
     private void ConfigureEnvironment(EpisodeConfig config)
     {
         // WATER
-        targetSurface.transform.rotation = Quaternion.Euler(new Vector3(0, config.WaterRotation, 0));
-        targetSurface.largeWindSpeed = config.WaterDistantWindSpeed;
-        targetSurface.largeChaos = config.WaterChaos;
-        targetSurface.largeOrientationValue = config.WaterCurrentOrientation;
-        targetSurface.largeBand0Multiplier = config.WaterFirstBandAmplitude;
-        targetSurface.largeBand1Multiplier = config.WaterSecondBandAmplitude;
-        targetSurface.ripplesWindSpeed = config.WaterRipplesWindSpeed;
-        targetSurface.ripplesChaos = config.WaterRipplesChaos;
-        targetSurface.refractionColor = config.WaterColor;
-        targetSurface.scatteringColor = config.WaterColor;
-        targetSurface.absorptionDistance = config.WaterAbsorptionDistance;
-        targetSurface.foamPersistenceMultiplier = config.FoamPersistenceMultipier;
-        targetSurface.foamColor = config.FoamColor;
-        targetSurface.foamSmoothness = config.FoamSmoothness;
-        targetSurface.simulationFoamAmount = config.FoamAmount;
+        waterSurface.transform.rotation = Quaternion.Euler(new Vector3(0, config.WaterRotation, 0));
+        waterSurface.largeWindSpeed = config.WaterDistantWindSpeed;
+        waterSurface.largeChaos = config.WaterChaos;
+        waterSurface.largeOrientationValue = config.WaterCurrentOrientation;
+        waterSurface.largeBand0Multiplier = config.WaterFirstBandAmplitude;
+        waterSurface.largeBand1Multiplier = config.WaterSecondBandAmplitude;
+        waterSurface.ripplesWindSpeed = config.WaterRipplesWindSpeed;
+        waterSurface.ripplesChaos = config.WaterRipplesChaos;
+        waterSurface.refractionColor = config.WaterColor;
+        waterSurface.scatteringColor = config.WaterColor;
+        waterSurface.absorptionDistance = config.WaterAbsorptionDistance;
+        waterSurface.foamPersistenceMultiplier = config.FoamPersistenceMultipier;
+        waterSurface.foamColor = config.FoamColor;
+        waterSurface.foamSmoothness = config.FoamSmoothness;
+        waterSurface.simulationFoamAmount = config.FoamAmount;
 
         // LIGHT
         sunLight.transform.rotation = Quaternion.Euler(config.LightRotation);

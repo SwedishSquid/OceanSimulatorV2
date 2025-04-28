@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class EpisodeStepLogRecord
 {
-    public Vector3 objectPosition;
+    //public Vector3 objectPosition;
 
     public Vector3 cameraPosition;
 

@@ -305,14 +305,14 @@ MonoBehaviour:
   fadeRadius: 0
   priority: 0
   customPasses:
-  - rid: 824699951776530495
+  - rid: 824700342220881983
   injectionPoint: 3
   m_TargetCamera: {fileID: 334983661}
   useTargetCamera: 1
   references:
     version: 2
     RefIds:
-    - rid: 824699951776530495
+    - rid: 824700342220881983
       type: {class: TagwiseObjectIdCustomPass, ns: , asm: Assembly-CSharp}
       data:
         m_Name: Custom Pass
@@ -322,17 +322,17 @@ MonoBehaviour:
         clearFlags: 1
         passFoldout: 0
         m_Version: 0
-        filterFoldout: 1
-        rendererFoldout: 1
+        filterFoldout: 0
+        rendererFoldout: 0
         renderQueueType: 2
         layerMask:
           serializedVersion: 2
-          m_Bits: 256
+          m_Bits: 1
         sortingCriteria: 51
         overrideMode: 1
         overrideMaterial: {fileID: 0}
         overrideMaterialPassIndex: 0
-        overrideMaterialPassName: ForwardOnly
+        overrideMaterialPassName: Forward
         overrideShader: {fileID: 0}
         overrideShaderPassIndex: 0
         overrideShaderPassName: Forward
@@ -1181,14 +1181,14 @@ MonoBehaviour:
   fadeRadius: 0
   priority: 0
   customPasses:
-  - rid: 824700205504135230
+  - rid: 824700342220881984
   injectionPoint: 3
   m_TargetCamera: {fileID: 922615569}
   useTargetCamera: 1
   references:
     version: 2
     RefIds:
-    - rid: 824700205504135230
+    - rid: 824700342220881984
       type: {class: TagwiseObjectIdCustomPass, ns: , asm: Assembly-CSharp}
       data:
         m_Name: Custom Pass
@@ -1198,8 +1198,8 @@ MonoBehaviour:
         clearFlags: 1
         passFoldout: 0
         m_Version: 0
-        filterFoldout: 1
-        rendererFoldout: 1
+        filterFoldout: 0
+        rendererFoldout: 0
         renderQueueType: 2
         layerMask:
           serializedVersion: 2
@@ -1208,7 +1208,7 @@ MonoBehaviour:
         overrideMode: 1
         overrideMaterial: {fileID: 0}
         overrideMaterialPassIndex: 0
-        overrideMaterialPassName: ForwardOnly
+        overrideMaterialPassName: Forward
         overrideShader: {fileID: 0}
         overrideShaderPassIndex: 0
         overrideShaderPassName: Forward
@@ -1554,7 +1554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc12fc743e0e5a54596b09b47933d46b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetSurface: {fileID: 541289580}
+  waterSurface: {fileID: 541289580}
   globalVolume: {fileID: 113722370}
   sunLight: {fileID: 984521099}
   cameraCase: {fileID: 69617565}
@@ -1825,14 +1825,14 @@ MonoBehaviour:
   fadeRadius: 0
   priority: 0
   customPasses:
-  - rid: 8106141330164154430
+  - rid: 824700342220881982
   injectionPoint: 3
   m_TargetCamera: {fileID: 2003209170}
   useTargetCamera: 1
   references:
     version: 2
     RefIds:
-    - rid: 8106141330164154430
+    - rid: 824700342220881982
       type: {class: TagwiseObjectIdCustomPass, ns: , asm: Assembly-CSharp}
       data:
         m_Name: Custom Pass
@@ -1842,8 +1842,8 @@ MonoBehaviour:
         clearFlags: 1
         passFoldout: 0
         m_Version: 0
-        filterFoldout: 1
-        rendererFoldout: 1
+        filterFoldout: 0
+        rendererFoldout: 0
         renderQueueType: 2
         layerMask:
           serializedVersion: 2
@@ -1852,7 +1852,7 @@ MonoBehaviour:
         overrideMode: 1
         overrideMaterial: {fileID: 0}
         overrideMaterialPassIndex: 0
-        overrideMaterialPassName: ForwardOnly
+        overrideMaterialPassName: Forward
         overrideShader: {fileID: 0}
         overrideShaderPassIndex: 0
         overrideShaderPassName: Forward

@@ -98,13 +98,7 @@ public class EpisodeConfig
     public Vector3 CloudsShapeOffset;
 
 
-    // OBJECT
-    public float ObjectToBoatDistance;  // length of perpendicular to the motion vector
-    public Vector3 ObjectScale;
-    /// <summary>
-    /// [0 - 1]
-    /// </summary>
-    public float ObjectDisplacement;
+    public ObjectConfig[] ObjectConfigs;
 
 
     //// STRANGE
