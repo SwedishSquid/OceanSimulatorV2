@@ -224,9 +224,13 @@ public class Main : MonoBehaviour
         SaveEpisodeStepLog(stepLog, episodeIndex, directory);
         Debug.Log("results saved");
 
+        yield return new WaitForSecondsRealtime(1f);
+
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();   // just to be sure
         Time.timeScale = timeScale;
+
+        yield return new WaitForSeconds(1f);
 
         Destroy(obj);   // who needs this junk
     }

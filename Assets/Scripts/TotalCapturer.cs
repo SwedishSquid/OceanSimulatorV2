@@ -71,8 +71,13 @@ public class TotalCapturer : MonoBehaviour
             width = DevResolution.width;
             height = DevResolution.height;
         }
-        renderTexture = new RenderTexture(width, height, 24);
-        texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        renderTexture = new RenderTexture(width, height, 24) {
+            antiAliasing = 1,
+        };
+
+        texture = new Texture2D(width, height, TextureFormat.RGB24, false) {
+            filterMode = FilterMode.Point,
+        };
     }
 
     public List<PhotoData> CaptureAll()
