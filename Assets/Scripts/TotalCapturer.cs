@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine.Rendering;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class TotalCapturer : MonoBehaviour
 {
@@ -39,9 +40,15 @@ public class TotalCapturer : MonoBehaviour
     {
         foreach (var cs in cameraSettings)
         {
-            if (cs.camera.gameObject.TryGetComponent<ObjectIDCustomPass>(out var customPass))
+            if (cs.camera.gameObject.TryGetComponent<CustomPassVolume>(out var customPass))
             {
-                customPass.AssignObjectIDs();
+                foreach (var pass in customPass.customPasses)
+                {
+                    if (pass is ObjectIDCustomPass objIdPass)
+                    {
+                        objIdPass.AssignObjectIDs();
+                    }
+                }
             }
         }
     }
@@ -64,15 +71,19 @@ public class TotalCapturer : MonoBehaviour
             width = DevResolution.width;
             height = DevResolution.height;
         }
-        renderTexture = new RenderTexture(width, height, 24);
-        texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        renderTexture = new RenderTexture(width, height, 24) {
+            antiAliasing = 1,
+        };
+
+        texture = new Texture2D(width, height, TextureFormat.RGB24, false) {
+            filterMode = FilterMode.Point,
+        };
     }
 
     public List<PhotoData> CaptureAll()
     {
         return cameraSettings.Select(cs => CaptureOne(cs))
             .ToList();
-        //throw new System.Exception("not applicable");
     }
 
     /// <summary>
@@ -99,7 +110,6 @@ public class TotalCapturer : MonoBehaviour
         System.GC.Collect();
 
         byte[] bytes = texture.EncodeToPNG();
-        Debug.Log(bytes.Length);
 
         return new PhotoData { contentPNG = bytes, cs = cs };
     }

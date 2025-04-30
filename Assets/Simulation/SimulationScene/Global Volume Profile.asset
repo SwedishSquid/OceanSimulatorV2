@@ -93,7 +93,7 @@ MonoBehaviour:
     m_Value: 20000
   groundTint:
     m_OverrideState: 1
-    m_Value: {r: 0.05824758, g: 0.11381631, b: 0.20883931, a: 1}
+    m_Value: {r: 0.058247555, g: 0.11381627, b: 0.20883921, a: 1}
   groundColorTexture:
     m_OverrideState: 0
     m_Value: {fileID: 0}
@@ -408,8 +408,8 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 5
   shapeOffset:
-    m_OverrideState: 0
-    m_Value: {x: 0, y: 0, z: 0}
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0.1, z: 1}
   erosionFactor:
     m_OverrideState: 1
     m_Value: 0.85
@@ -447,8 +447,8 @@ MonoBehaviour:
   orientation:
     m_OverrideState: 0
     m_Value:
-      mode: 1
-      customValue: 0
+      mode: 0
+      customValue: 360
       additiveValue: 0
       multiplyValue: 1
   altitudeDistortion:
@@ -474,7 +474,7 @@ MonoBehaviour:
     m_Value: 0
   ghostingReduction:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   perceptualBlending:
     m_OverrideState: 1
     m_Value: 1
@@ -621,6 +621,53 @@ MonoBehaviour:
   - {fileID: -5499500126640883099}
   - {fileID: 3260466854958211262}
   - {fileID: -3151013918038106103}
+  - {fileID: 98249210552520437}
+--- !u!114 &98249210552520437
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcf384b154398e341b6b29969c078198, type: 3}
+  m_Name: MotionBlur
+  m_EditorClassIdentifier: 
+  active: 1
+  quality:
+    m_OverrideState: 0
+    m_Value: 1
+  intensity:
+    m_OverrideState: 1
+    m_Value: 0
+  maximumVelocity:
+    m_OverrideState: 0
+    m_Value: 200
+  minimumVelocity:
+    m_OverrideState: 0
+    m_Value: 2
+  cameraMotionBlur:
+    m_OverrideState: 0
+    m_Value: 1
+  specialCameraClampMode:
+    m_OverrideState: 0
+    m_Value: 0
+  cameraVelocityClamp:
+    m_OverrideState: 0
+    m_Value: 0.05
+  cameraTranslationVelocityClamp:
+    m_OverrideState: 0
+    m_Value: 0.05
+  cameraRotationVelocityClamp:
+    m_OverrideState: 0
+    m_Value: 0.03
+  depthComparisonExtent:
+    m_OverrideState: 0
+    m_Value: 1
+  m_SampleCount:
+    m_OverrideState: 0
+    m_Value: 8
 --- !u!114 &3260466854958211262
 MonoBehaviour:
   m_ObjectHideFlags: 3

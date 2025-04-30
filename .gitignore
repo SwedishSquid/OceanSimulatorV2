@@ -47,6 +47,7 @@ ExportedObj/
 *.mdb
 *.opendb
 *.VC.db
+.idea
 
 # Unity3D generated meta files
 *.pidb.meta
@@ -77,3 +78,8 @@ crashlytics-build.properties
 
 # generated data
 /dev_gen
+/gen_results
+
+# post-processing with python
+.venv
+**/__pycache__/
