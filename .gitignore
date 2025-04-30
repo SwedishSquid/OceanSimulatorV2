@@ -79,3 +79,7 @@ crashlytics-build.properties
 # generated data
 /dev_gen
 /gen_results
+
+# post-processing with python
+.venv
+**/__pycache__/
