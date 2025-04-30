@@ -26,14 +26,14 @@ public class Main : MonoBehaviour
     private GameObject[] objectPrefabs;
 
     private float toSurfaceAdjustmentPeriod = 1f;  // how much to wait before adjusting to surface in seconds; Improves accuracy
-    private float intervalBetweenCapture = 3f;     //seconds
+    //private float intervalBetweenCapture = 3f;     //seconds
     
     private string storeFolder = "dev_gen";
     private bool throwIfEpisodeExists = true;
 
     //private bool oneFrameEpisodeMode = true;
 
-    private int paddingShots = 2;
+    //private int paddingShots = 2;
 
     private MetaConfig metaConfig;
 
@@ -60,8 +60,8 @@ public class Main : MonoBehaviour
 
     private IEnumerator MainLoop()
     {
-        var iteration = 966;
-        var nEpisodes = 1024;
+        var iteration = 0;
+        var nEpisodes = 5000;
 
         yield return new WaitForSeconds(2f);    // warmup
 
@@ -136,9 +136,9 @@ public class Main : MonoBehaviour
         return oneFrameDir;
     }
 
-    private GameObject SampleObject()
+    private GameObject SampleObject(ObjectConfig objConfig)
     {
-        if (UnityEngine.Random.value < 0.5)
+        if (objConfig.ObjectType == ObjectType.ComplexObject)
         {
             new ConditionalDistribution<float>(
                     new NormalDistribution(bias: 0.8f, std: 0.25f),
@@ -181,11 +181,12 @@ public class Main : MonoBehaviour
 
         foreach (var objConfig in episodeConfig.ObjectConfigs)
         {
-            var placementDirection = shipVelocityNomal + shipMover.MovementDirection * UnityEngine.Random.Range(-1f, 1f);
+            var horizontalDeviation = -(objConfig.Displacement * 2 - 1);
+            var placementDirection = shipVelocityNomal + shipMover.MovementDirection * horizontalDeviation;
 
             var objSpawnLocation = cameraCase.transform.position + placementDirection * objConfig.ToShipboardDistance;
 
-            var obj = SampleObject();
+            var obj = SampleObject(objConfig);
             obj.transform.position = objSpawnLocation;
             obj.transform.localScale = Vector3.Scale(obj.transform.localScale, objConfig.Scale);
             foreach (var tr in obj.GetComponentsInChildren<Transform>())
@@ -214,6 +215,7 @@ public class Main : MonoBehaviour
         var actualTimeMultiplier = waterSurface.timeMultiplier;
         waterSurface.timeMultiplier = 0;
 
+        // no need for realtime anymore, will not change though - it works now
         yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
 
         foreach (var obj in objects)

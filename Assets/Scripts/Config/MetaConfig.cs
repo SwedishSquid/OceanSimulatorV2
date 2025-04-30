@@ -62,13 +62,16 @@ public class MetaConfig
 
         config.Displacement = Random.Range(0f, 1f);
 
+        config.ObjectType = Random.value < 0.5 ? ObjectType.ComplexObject : ObjectType.Prefab;
+
         return config;
     }
 
     private void ConfigureObjects(EpisodeConfig config)
     {
         //var objCount = Random.Range(5, 12);
-        var objCount = 1;
+        //var objCount = 1;
+        var objCount = Random.Range(1, 6);
 
         config.ObjectConfigs = Enumerable.Range(0, objCount)
             .Select(v => SampleObjectConfig())
