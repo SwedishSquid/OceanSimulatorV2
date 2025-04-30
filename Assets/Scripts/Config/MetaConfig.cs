@@ -67,7 +67,8 @@ public class MetaConfig
 
     private void ConfigureObjects(EpisodeConfig config)
     {
-        var objCount = Random.Range(5, 12);
+        //var objCount = Random.Range(5, 12);
+        var objCount = 1;
 
         config.ObjectConfigs = Enumerable.Range(0, objCount)
             .Select(v => SampleObjectConfig())

@@ -327,12 +327,12 @@ MonoBehaviour:
         renderQueueType: 2
         layerMask:
           serializedVersion: 2
-          m_Bits: 1
+          m_Bits: 256
         sortingCriteria: 51
         overrideMode: 1
         overrideMaterial: {fileID: 0}
         overrideMaterialPassIndex: 0
-        overrideMaterialPassName: Forward
+        overrideMaterialPassName: ForwardOnly
         overrideShader: {fileID: 0}
         overrideShaderPassIndex: 0
         overrideShaderPassName: Forward
@@ -1573,7 +1573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9619a7e7482ede948adf3e07982185b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseMainResolution: 0
+  UseMainResolution: 1
   MainResolution:
     width: 3888
     height: 2916

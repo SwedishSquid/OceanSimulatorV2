@@ -60,7 +60,7 @@ public class Main : MonoBehaviour
 
     private IEnumerator MainLoop()
     {
-        var iteration = 0;
+        var iteration = 966;
         var nEpisodes = 1024;
 
         yield return new WaitForSeconds(2f);    // warmup
@@ -138,19 +138,22 @@ public class Main : MonoBehaviour
 
     private GameObject SampleObject()
     {
-        //new ConditionalDistribution<float>(
-        //        new NormalDistribution(bias: 0.8f, std: 0.25f),
-        //        value => value <= 1f && value >= 0
-        //    ).Sample();
+        if (UnityEngine.Random.value < 0.5)
+        {
+            new ConditionalDistribution<float>(
+                    new NormalDistribution(bias: 0.8f, std: 0.25f),
+                    value => value <= 1f && value >= 0
+                ).Sample();
 
-        //var colorDistribution = new DiscreteDistribution<Color?>
-        //    (new List<Color?>() { Color.white, null },
-        //    new List<double> { 0.4d, 0.6d }
-        //    );
-        //return new ComplexObjectConstructor(UnityEngine.Random.Range(0.3f, 0.7f),
-        //    minComponentCount: 4,
-        //    baseColor: colorDistribution.Sample())
-        //    .ConstructComplexRandomObject();
+            var colorDistribution = new DiscreteDistribution<Color?>
+                (new List<Color?>() { Color.white, null },
+                new List<double> { 0.4d, 0.6d }
+                );
+            return new ComplexObjectConstructor(UnityEngine.Random.Range(0.3f, 0.7f),
+                minComponentCount: 4,
+                baseColor: colorDistribution.Sample())
+                .ConstructComplexRandomObject();
+        }
 
         var obj = Instantiate(objectPrefabs[UnityEngine.Random.Range(0, objectPrefabs.Length)]);
         return obj;
