@@ -54,13 +54,15 @@ public class Main : MonoBehaviour
         //DisableTemporalCameraEffects();
 
         waterSurface.gameObject.SetActive(true);
+        Application.runInBackground = true;
+
         metaConfig.SaveMetaConfig(storeFolder);
         StartCoroutine(MainLoop());
     }
 
     private IEnumerator MainLoop()
     {
-        var iteration = 0;
+        var iteration = 4545;
         var nEpisodes = 5000;
 
         yield return new WaitForSeconds(2f);    // warmup
