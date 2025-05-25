@@ -69,9 +69,8 @@ public class MetaConfig
 
     private void ConfigureObjects(EpisodeConfig config)
     {
-        //var objCount = Random.Range(5, 12);
-        //var objCount = 1;
-        var objCount = Random.Range(1, 6);
+        var objCount = 1;
+        //var objCount = Random.Range(1, 6);
 
         config.ObjectConfigs = Enumerable.Range(0, objCount)
             .Select(v => SampleObjectConfig())
@@ -137,7 +136,7 @@ public class MetaConfig
         direction.Normalize();
         config.ShipDirection = direction;
 
-        config.ShipSpeed = Random.Range(2.5f, 3.5f);    //todo: find real values
+        config.ShipSpeed = Random.Range(3.75f, 5.25f);
 
         var rollAmplitudeDistribution = new ConditionalDistribution<float>(new NormalDistribution(2, 0.5f), v => v >= 0);
         var pitchAmplitudeDistribution = new ConditionalDistribution<float>(new NormalDistribution(1f, 0.3f), v => v >= 0);

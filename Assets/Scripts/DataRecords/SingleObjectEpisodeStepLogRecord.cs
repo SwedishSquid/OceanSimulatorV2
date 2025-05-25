@@ -6,12 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-public class EpisodeStepLogRecord
+public class SingleObjectEpisodeStepLogRecord : EpisodeStepLogRecord
 {
-    public Vector3 cameraPosition;
-
-    public Quaternion cameraRotation;
-
-    public Vector3 shipPosition;
+    public Vector3 objectPosition;
 }
-

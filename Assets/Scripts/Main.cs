@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine.Rendering;
 using NUnit.Framework;
+using System.Xml.Linq;
+using UnityEngine.Windows.Speech;
 
 public class Main : MonoBehaviour
 {
@@ -26,7 +28,7 @@ public class Main : MonoBehaviour
     private GameObject[] objectPrefabs;
 
     private float toSurfaceAdjustmentPeriod = 1f;  // how much to wait before adjusting to surface in seconds; Improves accuracy
-    //private float intervalBetweenCapture = 3f;     //seconds
+    private float intervalBetweenCapture = 2f;     //seconds
     
     private string storeFolder = "dev_gen";
     private bool throwIfEpisodeExists = true;
@@ -51,8 +53,6 @@ public class Main : MonoBehaviour
 
     void Start()
     {
-        //DisableTemporalCameraEffects();
-
         waterSurface.gameObject.SetActive(true);
         Application.runInBackground = true;
 
@@ -62,53 +62,37 @@ public class Main : MonoBehaviour
 
     private IEnumerator MainLoop()
     {
-        var iteration = 4545;
-        var nEpisodes = 5000;
+        var iteration = 0;
+        var nEpisodes = 42;
 
         yield return new WaitForSeconds(2f);    // warmup
 
         while (iteration < nEpisodes)
         {
             Debug.Log($"starting episode {iteration}");
-            yield return StartMultiObjectOneFrameEpisode(iteration);
-            //if (oneFrameEpisodeMode)
-            //{
-            //    yield return StartOneFrameEpisode(iteration);
-            //}
-            //else
-            //{
-            //    throw new NotImplementedException();
-            //    //yield return StartEpisode(iteration);
-            //}
+            //yield return StartMultiObjectOneFrameEpisode(iteration);
+            yield return StartSingleObjectFullLengthEpisode(iteration);
             iteration++;
         }
         Debug.Log("end of simulation");
         UnityEditor.EditorApplication.isPlaying = false;
     }
 
-    //private void DisableTemporalCameraEffects()
+    //private string InitializeEpisodeDirectory(EpisodeConfig config, int episodeIndex)
     //{
-    //    foreach (var cs in capturer.cameraSettings)
+    //    var episodeName = $"episode_{episodeIndex}";
+    //    var episodeDir = Path.Combine(storeFolder, episodeName);
+    //    if (Directory.Exists(episodeDir) && throwIfEpisodeExists)
     //    {
-    //        var camera = cs.camera;
-    //        var hdCameraData = camera.GetComponent<HDAdditionalCameraData>();
-    //        hdCameraData.antialiasing = HDAdditionalCameraData.AntialiasingMode.None;
+    //        throw new InvalidOperationException($"{episodeName} already exists - stopping to avoid overriding it");
     //    }
-
-    //    if (globalVolume.profile.TryGet<MotionBlur>(out var motionBlur))
-    //    {
-    //        motionBlur.active = false;
-    //        Debug.Log("MotionBlur volume effect disabled");
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("MotionBlur volume was not found; assuming it is disabled");
-    //    }
-
-    //    Debug.Log("temporal camera effects disabled");
+    //    Directory.CreateDirectory(episodeDir);
+    //    var configJson = JsonUtility.ToJson(config, prettyPrint: true);
+    //    File.WriteAllText(Path.Combine(episodeDir, "episode_config.json"), configJson);
+    //    return episodeDir;
     //}
 
-    private string InitializeEpisodeDirectory(EpisodeConfig config, int episodeIndex)
+    private string InitializeFullLengthEpisode(EpisodeConfig config, int episodeIndex)
     {
         var episodeName = $"episode_{episodeIndex}";
         var episodeDir = Path.Combine(storeFolder, episodeName);
@@ -201,6 +185,32 @@ public class Main : MonoBehaviour
         return objects;
     }
 
+    private GameObject SpawnSingleObjectForFullEpisode(EpisodeConfig episodeConfig)
+    {
+        var shipVelocityNomal = shipMover.gameObject.transform.forward;
+        shipVelocityNomal.y = 0;
+        shipVelocityNomal.Normalize();
+
+        var leapLength = intervalBetweenCapture * episodeConfig.ShipSpeed;
+
+        if (episodeConfig.ObjectConfigs.Length != 1)
+        {
+            throw new ArgumentException($"cannot spawn one object - passed in [{episodeConfig.ObjectConfigs.Length}] != 1 object configs");
+        }
+        var objConfig = episodeConfig.ObjectConfigs[0];
+
+        var shiftVector = shipMover.MovementDirection * leapLength * (objConfig.Displacement - 0.5f);
+        var spawnLocation = (shipVelocityNomal + shipMover.MovementDirection) * objConfig.ToShipboardDistance + shiftVector;
+        var obj = SampleObject(objConfig);
+        obj.transform.position = spawnLocation;
+        obj.transform.localScale = Vector3.Scale(obj.transform.localScale, objConfig.Scale);
+        foreach (var tr in obj.GetComponentsInChildren<Transform>())
+        {
+            tr.gameObject.tag = "Object";
+        }
+        return obj;
+    }
+
     private IEnumerator StartMultiObjectOneFrameEpisode(int episodeIndex)
     {
         var episodeConfig = metaConfig.Sample();
@@ -255,81 +265,64 @@ public class Main : MonoBehaviour
         }
     }
 
-    //private IEnumerator StartOneFrameEpisode(int episodeIndex)
-    //{
-    //    var cameraMoveCooldown = 1f;
+    private IEnumerator StartSingleObjectFullLengthEpisode(int episodeIndex)
+    {
+        var episodeConfig = metaConfig.Sample();
+        var directory = InitializeFullLengthEpisode(episodeConfig, episodeIndex);
 
-    //    var episodeConfig = metaConfig.Sample();
-    //    var directory = InitializeOneFrameEpisode(episodeConfig, episodeIndex);
+        ConfigureEnvironment(episodeConfig);
 
-    //    ConfigureEnvironment(episodeConfig);
+        ConfigureShipMover(episodeConfig);
 
-    //    ConfigureShipMover(episodeConfig);
+        var obj = SpawnSingleObjectForFullEpisode(episodeConfig);
 
-    //    var objectToBoardDistance = episodeConfig.ObjectToBoatDistance;
-    //    var hopDistance = shipMover.Speed * intervalBetweenCapture;
+        capturer.AssignObjectIDs();
 
-    //    var objectHorizontalShift = objectToBoardDistance + paddingShots * hopDistance
-    //        + episodeConfig.ObjectDisplacement * hopDistance;
+        yield return new WaitForSeconds(1f);    // warmup
 
-    //    var shipVelocityNomal = shipMover.gameObject.transform.forward;
-    //    shipVelocityNomal.y = 0;
-    //    shipVelocityNomal.Normalize();
+        var leapLength = intervalBetweenCapture * episodeConfig.ShipSpeed;
+        var nSteps = (int)Math.Ceiling(episodeConfig.ObjectConfigs[0].ToShipboardDistance * 2 / leapLength);
+        for (var i = 0; i < nSteps; i++)
+        {
+            Debug.Log($"step {i + 1} out of {nSteps}");
 
-    //    var objSpawnLocation = cameraCase.transform.position + shipVelocityNomal * objectToBoardDistance
-    //        + shipMover.MovementDirection * (objectHorizontalShift);
+            yield return new WaitForSeconds(intervalBetweenCapture);
+            yield return new WaitForEndOfFrame();
 
-    //    // todo: sample object
-    //    //var obj = Instantiate(objectPrefabs[0], objSpawnLocation, Quaternion.identity);
-    //    var obj = SampleObject();
-    //    obj.transform.position = objSpawnLocation;
-    //    obj.transform.localScale = Vector3.Scale(obj.transform.localScale, episodeConfig.ObjectScale);
+            var actualTimeMultiplier = waterSurface.timeMultiplier;
+            waterSurface.timeMultiplier = 0;
 
-    //    capturer.AssignObjectIDs();
+            // no need for realtime anymore, will not change though - it just works
+            yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
+        
+            floatingWizard.AdjustToSurface(obj);
 
-    //    yield return new WaitForSeconds(1f);    // warmup, maybe redundant
+            yield return new WaitForSecondsRealtime(0.8f);  // what is this for?
+            yield return new WaitForEndOfFrame();
 
-    //    var nSteps = (int)Math.Ceiling(objectHorizontalShift * 2 / (shipMover.Speed * intervalBetweenCapture)) + 1;
-    //    var stepIndex = UnityEngine.Random.Range(0 + 3, nSteps - 1 - 3);
+            yield return CaptureAllCameras(i, directory);
 
-    //    Debug.Log($"chosen step is [{stepIndex} / {nSteps}]");
+            var stepLog = new SingleObjectEpisodeStepLogRecord()
+            {
+                objectPosition = obj.transform.position,
+                cameraPosition = cameraCase.transform.position,
+                cameraRotation = cameraCase.transform.rotation,
+                shipPosition = shipMover.transform.position,
+            };
+            SaveEpisodeStepLog(stepLog, i, directory);
 
-    //    shipMover.AdjustPosition(stepIndex * intervalBetweenCapture);
-    //    AdjustHorizonPlanePosition(cameraCase.gameObject.transform.position);
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();   // just to be sure
 
-    //    yield return new WaitForSeconds(cameraMoveCooldown);
+            shipMover.AdjustPosition((i + 1) * intervalBetweenCapture);
+            waterSurface.timeMultiplier = actualTimeMultiplier;
+        }
 
-    //    var timeScale = Time.timeScale;
-    //    Time.timeScale = 0;
-
-    //    yield return new WaitForSecondsRealtime(toSurfaceAdjustmentPeriod);
-    //    floatingWizard.AdjustToSurface(obj);
-    //    Debug.Log("surface adjustment complete");
-    //    yield return new WaitForSecondsRealtime(0.8f);  // what is this for?
-    //    yield return new WaitForEndOfFrame();
-
-    //    yield return CaptureAllCameras(episodeIndex, directory);
-
-    //    var stepLog = new EpisodeStepLogRecord()
-    //    {
-    //        objectPosition = obj.transform.position,
-    //        cameraPosition = cameraCase.transform.position,
-    //        cameraRotation = cameraCase.transform.rotation,
-    //        shipPosition = shipMover.transform.position,
-    //    };
-    //    SaveEpisodeStepLog(stepLog, episodeIndex, directory);
-    //    Debug.Log("results saved");
-
-    //    yield return new WaitForSecondsRealtime(1f);
-
-    //    yield return new WaitForEndOfFrame();
-    //    yield return new WaitForEndOfFrame();   // just to be sure
-    //    Time.timeScale = timeScale;
-
-    //    yield return new WaitForSeconds(1f);
-
-    //    Destroy(obj);   // who needs this junk
-    //}
+        Destroy(obj);
+        SaveEpisodeFinishedFlag(directory);
+        Debug.Log("results saved");
+    }
 
     //private IEnumerator StartEpisode(int episodeIndex)
     //{
